@@ -10,11 +10,11 @@ interface PricingTier {
 }
 
 const pricingTiers: PricingTier[] = [
-  { pages: 1000, price: 9.99, label: '1K' },
-  { pages: 10000, price: 19, label: '10K' },
-  { pages: 20000, price: 29, label: '20K' },
-  { pages: 30000, price: 69, label: '30K' },
-  { pages: 50000, price: 89, label: '50K' },
+  { pages: 1000, price: 9, label: '1K' },
+  { pages: 5000, price: 19, label: '5K' },
+  { pages: 10000, price: 29, label: '10K' },
+  { pages: 20000, price: 39, label: '20K' },
+  { pages: 40000, price: 49, label: '40K' },
 ];
 
 export const PricingCard: React.FC = () => {
@@ -25,14 +25,14 @@ export const PricingCard: React.FC = () => {
   const selectedTier = pricingTiers[selectedTierIndex];
   const displayPrice = selectedTier.price;
   
-  // Mapear el tier a un plan ID de Clerk (usando los Plan Keys reales)
+  // Mapear el tier a un plan ID de Clerk (usando los Plan Keys de producción)
   const getPlanId = (tierIndex: number): string => {
     const clerkPlanIds = [
-      'cplan_30VxITOcfVN0hdOhJXvXuWjspgl', // 1000_pages
-      'cplan_33l2AseFDpR7GMjqvzVPWJNkOSj', // 10000_pages
-      'cplan_33l2ONRsdHgAyPiYJnwXAOdVQxx', // 20000_pages
-      'cplan_33l2VHGf01xpsZmz2dRzXnoNfkd', // 30000_pages
-      'cplan_33l2aMhzclUW6kpY59ctbo1hpcH', // 50000_pages
+      import.meta.env.VITE_PLAN_1K || 'cplan_319hW2htCwc28QLuofa6V11jwmf',    // 1000_pages
+      import.meta.env.VITE_PLAN_5K || 'cplan_33qFJk5cGYUXNFYDawgsXWarwXj',    // 5000_pages
+      import.meta.env.VITE_PLAN_10K || 'cplan_33qNbCHvQp2wAZkzNniwqmX1exZ',   // 10000_pages
+      import.meta.env.VITE_PLAN_20K || 'cplan_33qNlc6TwLpUh3BdqMYBJbdYLQZ',   // 20000_pages
+      import.meta.env.VITE_PLAN_40K || 'cplan_33qOHQx7ztKhoaJeipqwfkt4TuY',   // 40000_pages
     ];
     return clerkPlanIds[tierIndex];
   };
@@ -58,7 +58,7 @@ export const PricingCard: React.FC = () => {
         <div className="relative">
           <div className="flex justify-between text-sm text-gray-400 mb-2">
             <span>1K</span>
-            <span>50K</span>
+            <span>40K</span>
           </div>
           <input
             type="range"
