@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: quaere-pdf-analyzer
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: VITE_CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: VITE_PLAN_1K
+        sync: false
+      - key: VITE_PLAN_5K
+        sync: false
+      - key: VITE_PLAN_10K
+        sync: false
+      - key: VITE_PLAN_20K
+        sync: false
+      - key: VITE_PLAN_40K
+        sync: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
