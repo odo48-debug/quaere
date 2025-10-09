@@ -1,0 +1,5 @@
+{
+  "name": "Quaere",
+  "description": "Upload a PDF, extract its text content in a structured format using Gemini, and analyze the content through an interactive chat interface.",
+  "requestFramePermissions": []
+}
