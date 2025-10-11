@@ -69,6 +69,14 @@ export const useSubscription = (): SubscriptionInfo => {
   // Check if user has subscription plan in their metadata
   const rawPlan = user?.publicMetadata?.subscriptionPlan as string;
   
+  // Debug: Log para ver qué está recibiendo
+  console.log('🔍 Debug Subscription:', {
+    userId: user?.id,
+    publicMetadata: user?.publicMetadata,
+    rawPlan,
+    allMetadata: user
+  });
+  
   // Convertir el Plan Key de Clerk a nuestro nombre interno
   let userPlan: SubscriptionPlan = 'free';
   if (rawPlan) {
