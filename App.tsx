@@ -6,6 +6,8 @@ import { FileUploader } from './components/FileUploader';
 import { ContentView } from './components/ContentView';
 import { ChatWindow } from './components/ChatWindow';
 import { LandingPage } from './components/LandingPage';
+import { DocumentationPage } from './components/DocumentationPage';
+import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
 import { IconDocument, IconLoader, IconSparkles, IconUpload, IconFileCheck, IconChevronLeft, IconChevronRight } from './components/icons';
 import type { ChatMessage, ProcessingState, ContentViewHandle, PageData, HighlightRect, Annotation } from './types';
 import { findHighlightCoordinates, findLabelCoordinates } from './utils/highlighting';
@@ -72,6 +74,8 @@ const App: React.FC = () => {
   const { canProcessPages, incrementPageCount, getRemainingPages, limits, isPaidUser, isFreeTrialActive } = useUsageLimit();
   
   const [showLandingPage, setShowLandingPage] = useState(true);
+  const [showDocumentation, setShowDocumentation] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +101,26 @@ const App: React.FC = () => {
       return;
     }
     setShowLandingPage(false);
+    setShowDocumentation(false);
+    setShowPrivacyPolicy(false);
+  };
+
+  const handleShowDocumentation = () => {
+    setShowDocumentation(true);
+    setShowLandingPage(false);
+    setShowPrivacyPolicy(false);
+  };
+
+  const handleShowPrivacyPolicy = () => {
+    setShowPrivacyPolicy(true);
+    setShowLandingPage(false);
+    setShowDocumentation(false);
+  };
+
+  const handleBackToHome = () => {
+    setShowDocumentation(false);
+    setShowPrivacyPolicy(false);
+    setShowLandingPage(true);
   };
 
   // Ocultar landing page automáticamente si el usuario está logueado
@@ -441,7 +465,11 @@ ${plainText}`;
   return (
     <div className="h-screen flex antialiased">
       {showLandingPage ? (
-        <LandingPage onGetStarted={handleGetStarted} />
+        <LandingPage onGetStarted={handleGetStarted} onShowDocumentation={handleShowDocumentation} onShowPrivacyPolicy={handleShowPrivacyPolicy} />
+      ) : showDocumentation ? (
+        <DocumentationPage onGetStarted={handleGetStarted} onBackToHome={handleBackToHome} onShowPrivacyPolicy={handleShowPrivacyPolicy} />
+      ) : showPrivacyPolicy ? (
+        <PrivacyPolicyPage onGetStarted={handleGetStarted} onBackToHome={handleBackToHome} />
       ) : (
         <>
           {/* Sidebar */}

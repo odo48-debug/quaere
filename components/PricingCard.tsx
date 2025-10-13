@@ -96,7 +96,7 @@ export const PricingCard: React.FC = () => {
           </div>
           <div className="flex items-center gap-3 text-gray-300">
             <IconCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>Up to 50 pages per PDF</span>
+            <span>Up to 200 pages per PDF</span>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export const PricingCard: React.FC = () => {
         </button>
 
         <p className="text-center text-gray-400 text-sm mt-4">
-          $0.00 due today. No credit card required.
+          No credit card required.
         </p>
       </div>
 

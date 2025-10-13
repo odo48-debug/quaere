@@ -27,7 +27,7 @@ export const UpgradePrompt: React.FC<UpgradePromptProps> = ({ onUpgrade, reason 
           </div>
           <div className="flex items-start gap-3">
             <IconCheck className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-            <span className="text-sm text-gray-700">Up to 50 pages per PDF</span>
+            <span className="text-sm text-gray-700">Up to 200 pages per PDF</span>
           </div>
           <div className="flex items-start gap-3">
             <IconCheck className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />

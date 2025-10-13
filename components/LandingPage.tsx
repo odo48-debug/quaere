@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { IconSparkles, IconShieldCheck, IconChat, IconQuote, IconCheck, IconZap, IconCrown, IconArrowRight } from './icons';
+import { IconSparkles, IconShieldCheck, IconChat, IconQuote, IconCheck, IconZap, IconCrown, IconArrowRight, IconBook } from './icons';
 import { SignInButton } from './auth/SignInButton';
 import { SignUpButton } from './auth/SignUpButton';
 import { UserButton } from './auth/UserButton';
@@ -9,9 +9,11 @@ import { PricingCard } from './PricingCard';
 
 interface LandingPageProps {
   onGetStarted: () => void;
+  onShowDocumentation?: () => void;
+  onShowPrivacyPolicy?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onShowDocumentation, onShowPrivacyPolicy }) => {
   const { isSignedIn } = useUser();
 
   // Agregar clase dark-mode al body y html cuando se monta el componente
@@ -61,6 +63,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               <span className="text-xl font-bold text-white">Quaere</span>
             </div>
             <div className="flex items-center gap-4">
+              {onShowDocumentation && (
+                <button
+                  onClick={onShowDocumentation}
+                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                >
+                  Documentation
+                </button>
+              )}
               {isSignedIn ? (
                 <>
                   <button
@@ -95,22 +105,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               Privacy-First Document Analysis
             </div>
             <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight">
-              Analyze PDFs with
+              Analyze PDFs with  
               <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 AI-Powered Intelligence
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Upload your documents, ask questions in natural language, and get instant, accurate answers—all processed securely in your browser.
+              Analyze and chat with your PDFs instantly. 100% local, private, and secure AI document processing — no uploads, no servers.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                onClick={onGetStarted}
-                className="group px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center gap-2"
-              >
-                Get Started Free
-                <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              {isSignedIn ? (
+                <button
+                  onClick={onGetStarted}
+                  className="group px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center gap-2"
+                >
+                  Go to App
+                  <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              ) : (
+                <SignUpButton className="group px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center gap-2">
+                  Get Started Free
+                  <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </SignUpButton>
+              )}
               <button
                 onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
                 className="px-8 py-4 text-lg font-semibold text-white bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:shadow-xl hover:bg-gray-700 transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gray-600"
@@ -190,6 +207,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <p className="text-sm">
             2025 Quaere. All rights reserved. • Privacy-first document analysis.
           </p>
+          {onShowPrivacyPolicy && (
+            <div className="mt-4">
+              <button
+                onClick={onShowPrivacyPolicy}
+                className="text-sm text-gray-400 hover:text-white transition-colors underline"
+              >
+                Privacy Policy
+              </button>
+            </div>
+          )}
         </div>
       </footer>
     </div>
