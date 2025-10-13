@@ -176,24 +176,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onShowDo
         <PricingCard />
       </div>
 
-      {/* CTA Section */}
+      {/* Video Demo Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden">
-          <div className="px-8 py-16 sm:px-16 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready to Transform Your PDF Workflow?
-            </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of users who trust Quaere for secure, intelligent document analysis.
-            </p>
-            <button
-              onClick={onGetStarted}
-              className="group px-10 py-5 text-lg font-bold text-purple-600 bg-white rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white inline-flex items-center gap-2"
-            >
-              Start Analyzing Now
-              <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            See Quaere in Action
+          </h2>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Watch how Quaere transforms your PDF workflow with AI-powered intelligence
+          </p>
+        </div>
+        
+        <div className="max-w-5xl mx-auto">
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ paddingBottom: '56.25%' }}>
+            <iframe
+              className="absolute top-0 left-0 w-full h-full"
+              src="https://www.youtube.com/embed/Y05ZDGX9FAM"
+              title="Quaere Demo"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
           </div>
+        </div>
+
+        <div className="text-center mt-12">
+          <button
+            onClick={onGetStarted}
+            className="group px-10 py-5 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 inline-flex items-center gap-2"
+          >
+            Start Analyzing Now
+            <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </div>
 
