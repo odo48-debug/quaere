@@ -221,16 +221,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onShowDo
           <p className="text-sm">
             2025 Quaere. All rights reserved. • Privacy-first document analysis.
           </p>
-          {onShowPrivacyPolicy && (
-            <div className="mt-4">
-              <button
-                onClick={onShowPrivacyPolicy}
-                className="text-sm text-gray-400 hover:text-white transition-colors underline"
-              >
-                Privacy Policy
-              </button>
-            </div>
-          )}
+          <div className="mt-4">
+            <a
+              href="/privacy-policy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-400 hover:text-white transition-colors underline"
+            >
+              Privacy Policy
+            </a>
+          </div>
         </div>
       </footer>
     </div>
