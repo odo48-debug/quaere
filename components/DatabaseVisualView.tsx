@@ -200,11 +200,19 @@ export const DatabaseVisualView: React.FC<DatabaseVisualViewProps> = ({ activeTa
                 valueExpr = `${aggregation.toUpperCase()}(${yCol})`;
             }
 
+            // Determine sort order: Time-based or alphabetical X axes vs value ranking
+            const xColDef = columns1.find(c => c.column_name === xAxis) || columns2.find(c => c.column_name === xAxis);
+            const xType = xColDef?.data_type.toLowerCase() || '';
+            const isTime = xType.includes('date') || xType.includes('time') ||
+                xAxis.toLowerCase().includes('date') || xAxis.toLowerCase().includes('fecha') || xAxis.toLowerCase().includes('mes');
+
+            const orderByClause = isTime ? 'ORDER BY name ASC' : 'ORDER BY value DESC';
+
             const query = `
                 SELECT ${xCol} as name, ${valueExpr} as value
                 FROM ${fromClause}
                 GROUP BY ${xCol}
-                ORDER BY value DESC
+                ${orderByClause}
                 LIMIT 30
             `;
             const result = await db.query(query);

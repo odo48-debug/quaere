@@ -50,6 +50,7 @@ export const useUsageLimit = () => {
   }, [isSignedIn, user]);
 
   const incrementPageCount = (pageCount: number) => {
+    console.log("incrementPageCount Called with count:", pageCount, "isSignedIn:", isSignedIn, "user:", user?.id);
     if (!isSignedIn || !user) return;
 
     const storageKey = `${STORAGE_KEY}_${user.id}`;
@@ -57,6 +58,7 @@ export const useUsageLimit = () => {
 
     let currentCount = 0;
     const savedUsage = localStorage.getItem(storageKey);
+    console.log("Loaded savedUsage:", savedUsage);
     if (savedUsage) {
       const parsed = JSON.parse(savedUsage) as UsageData;
       if (parsed.lastResetDate === currentMonth) {
@@ -69,6 +71,7 @@ export const useUsageLimit = () => {
       lastResetDate: currentMonth,
     };
 
+    console.log("Setting localStorage with new usage:", newUsage);
     localStorage.setItem(storageKey, JSON.stringify(newUsage));
     window.dispatchEvent(new Event('usageUpdated'));
   };
