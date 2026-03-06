@@ -15,12 +15,12 @@ interface DocumentationPageProps {
 export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onGetStarted, onBackToHome, onShowPrivacyPolicy }) => {
   const { isSignedIn } = useUser();
 
-  // Agregar clase dark-mode al body y html cuando se monta el componente
+  // Add dark-mode class to body and html when component mounts
   useEffect(() => {
     document.body.classList.add('dark-mode');
     document.documentElement.classList.add('dark-mode');
-    
-    // Limpiar al desmontar
+
+    // Cleanup on unmount
     return () => {
       document.body.classList.remove('dark-mode');
       document.documentElement.classList.remove('dark-mode');
@@ -80,10 +80,10 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onGetStart
               Documentation
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-              How Quaere Works
+              Master Your Documents with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Precision AI</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Learn how to analyze your PDF documents with AI-powered intelligence
+              Extract, map, and generate consistent documents through surgical AI-powered intelligence.
             </p>
           </div>
         </div>
@@ -91,31 +91,31 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onGetStart
 
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-        
+
         {/* Overview Section */}
-        <section className="space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">Overview</h2>
+        <section className="space-y-6 text-center md:text-left">
+          <h2 className="text-3xl md:text-4xl font-bold text-white">The Precision Engine</h2>
           <p className="text-lg text-gray-300 leading-relaxed">
-            Quaere is a powerful web application designed to help you interact with your PDF documents like never before. 
-            This tool allows you to upload a PDF, extract its content, and engage in to find the information you need, quickly and accurately.
+            Quaere is a specialized <strong>Precision Document Engine</strong>. It goes beyond simple analysis by allowing you to
+            transform raw document data into structured variables, which are then used to generate consistent,
+            high-quality professional documents at scale.
           </p>
         </section>
 
         {/* Key Features Section */}
         <section className="space-y-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">Key Features</h2>
-          
-          <div className="grid gap-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-white">Surgical Features</h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-blue-500/50 transition-all">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <IconZap className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Fast & Efficient</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Surgical Extraction</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    The entire analysis process, from text extraction to rendering, is optimized for speed, 
-                    giving you instant access to your document's content.
+                    Identify and extract variable data points with 100% accuracy using our AI-driven OCR and layout engine.
                   </p>
                 </div>
               </div>
@@ -127,11 +127,9 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onGetStart
                   <IconShieldCheck className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Secure & Private</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Variable Intelligence</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Your privacy is paramount. All processing, including PDF rendering and text extraction, happens 
-                    entirely within your browser. Your documents are <strong>never</strong> uploaded to any server, 
-                    ensuring your data remains confidential.
+                    Map extracted data to structured database tags. Control every variable before it enters your generation workflow.
                   </p>
                 </div>
               </div>
@@ -140,30 +138,26 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onGetStart
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-blue-500/50 transition-all">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <IconChat className="w-6 h-6 text-white" />
+                  <IconDocument className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Precise AI-Powered Chat</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Consistent Generation</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Ask complex questions in natural language. The AI assistant provides answers and analysis
-                    based <em>exclusively</em> on the content of your document, eliminating guesswork and external information.
+                    Use your structured variables to build powerful templates. Generate perfectly formatted documents consistently.
                   </p>
                 </div>
               </div>
             </div>
 
-    
-
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 hover:border-blue-500/50 transition-all">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <IconQuote className="w-6 h-6 text-white" />
+                  <IconShieldCheck className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-2">Source Highlighting</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Local & Private</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Never lose track of where information comes from. When the AI cites a piece of text from the document, 
-                    you can click to instantly highlight the exact passage on the PDF page, verifying the source with a single click.
+                    Your data is processed in the browser. Privacy is part of our core architecture, ensuring your documents remain secure.
                   </p>
                 </div>
               </div>
@@ -172,72 +166,60 @@ export const DocumentationPage: React.FC<DocumentationPageProps> = ({ onGetStart
         </section>
 
         {/* How It Works Section */}
-        <section className="space-y-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white">How It Works</h2>
-          
-          <div className="space-y-6">
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+        <section className="space-y-8 bg-gray-800/30 p-8 rounded-2xl border border-gray-700">
+          <h2 className="text-3xl md:text-4xl font-bold text-white text-center">The Workflow</h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto shadow-lg shadow-blue-500/20">
                 1
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2">Upload</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Select any PDF file from your local computer. Click the "Choose PDF" button in the sidebar and 
-                  browse to your document.
-                </p>
-              </div>
+              <h3 className="text-xl font-bold text-white">Identify & Extract</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Upload your document. Our AI scans the layout and extracts precise data points into structured fields.
+              </p>
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto shadow-lg shadow-purple-500/20">
                 2
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2">Analyze</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  The application renders the document and extract all text directly in your browser. No data is 
-                  sent to external servers during this process.
-                </p>
-              </div>
+              <h3 className="text-xl font-bold text-white">Structure & Map</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Define and map your variables. Transform the extracted text into reliable database tags for your workflow.
+              </p>
             </div>
 
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto shadow-lg shadow-indigo-500/20">
                 3
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-white mb-2">Chat</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  The extracted text is then passed as context to the model. You can ask questions, request 
-                  summaries, or search specific information. The model uses its advanced understanding and function 
-                  calling capabilities to respond accurately.
-                </p>
-              </div>
+              <h3 className="text-xl font-bold text-white">Compose & Generate</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Build your template using your mapped tags. Generate and export professional documents instantly.
+              </p>
             </div>
           </div>
         </section>
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12 mt-16">
+      <footer className="bg-gray-900/50 backdrop-blur-sm text-gray-400 py-12 mt-16 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <IconSparkles className="w-6 h-6 text-blue-500" />
             <span className="text-xl font-bold text-white">Quaere</span>
           </div>
           <p className="text-sm">
-            2025 Quaere. All rights reserved. • Privacy-first document analysis.
+            &copy; 2026 Quaere. All rights reserved. • Building the future of document intelligence.
           </p>
           <div className="mt-4">
-            <a
-              href="/privacy-policy.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-400 hover:text-white transition-colors underline"
+            <button
+              onClick={onShowPrivacyPolicy}
+              className="text-sm text-gray-500 hover:text-white transition-colors underline"
             >
               Privacy Policy
-            </a>
+            </button>
           </div>
         </div>
       </footer>

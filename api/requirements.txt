@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+pdfplumber
+easyocr
+opencv-python-headless
+google-genai
+pydantic
+python-dotenv
+pytesseract
+pillow
+pymupdf
+composio-core
+numpy

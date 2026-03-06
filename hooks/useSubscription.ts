@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
 
-export type SubscriptionPlan = 'free' | 'plan_1k' | 'plan_5k' | 'plan_10k' | 'plan_20k' | 'plan_40k';
+export type SubscriptionPlan = 'free' | 'plan_100' | 'plan_500' | 'plan_2000';
 
 export interface SubscriptionLimits {
   pagesPerMonth: number;
@@ -17,79 +18,75 @@ export interface SubscriptionInfo {
 
 const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
   free: {
-    pagesPerMonth: 1000,
-    maxPagesPerPdf: 50,
+    pagesPerMonth: 100, // Free trial: 100 pages or 7 days
+    maxPagesPerPdf: 5,
     price: 0,
   },
-  plan_1k: {
-    pagesPerMonth: 1000,
+  plan_100: {
+    pagesPerMonth: 100,
     maxPagesPerPdf: 200,
-    price: 9,
+    price: 9.99,
   },
-  plan_5k: {
-    pagesPerMonth: 5000,
+  plan_500: {
+    pagesPerMonth: 500,
     maxPagesPerPdf: 200,
-    price: 19,
+    price: 19.99,
   },
-  plan_10k: {
-    pagesPerMonth: 10000,
+  plan_2000: {
+    pagesPerMonth: 2000,
     maxPagesPerPdf: 200,
-    price: 29,
-  },
-  plan_20k: {
-    pagesPerMonth: 20000,
-    maxPagesPerPdf: 200,
-    price: 39,
-  },
-  plan_40k: {
-    pagesPerMonth: 40000,
-    maxPagesPerPdf: 200,
-    price: 49,
+    price: 29.99,
   },
 };
 
-// Mapeo de Plan Keys de Clerk a nombres de planes internos (Producción)
+// Map Clerk Plan Keys to internal plan names (Production and Dev)
 const CLERK_PLAN_KEY_MAP: Record<string, SubscriptionPlan> = {
-  'cplan_319hW2htCwc28QLuofa6V11jwmf': 'plan_1k',
-  'cplan_33qFJk5cGYUXNFYDawgsXWarwXj': 'plan_5k',
-  'cplan_33qNbCHvQp2wAZkzNniwqmX1exZ': 'plan_10k',
-  'cplan_33qNlc6TwLpUh3BdqMYBJbdYLQZ': 'plan_20k',
-  'cplan_33qOHQx7ztKhoaJeipqwfkt4TuY': 'plan_40k',
-  // También soportar los nombres legibles
-  '1000_pages': 'plan_1k',
-  '5000_pages': 'plan_5k',
-  '10000_pages': 'plan_10k',
-  '20000_pages': 'plan_20k',
-  '40000_pages': 'plan_40k',
+  // Prod keys
+  'cplan_319hW2htCwc28QLuofa6V11jwmf': 'plan_100',
+  'cplan_33qFJk5cGYUXNFYDawgsXWarwXj': 'plan_500',
+  'cplan_33qNbCHvQp2wAZkzNniwqmX1exZ': 'plan_2000',
+  // Dev keys
+  'cplan_30VxITOcfVN0hdOhJXvXuWjspgl': 'plan_100',
+  'cplan_33l2AseFDpR7GMjqvzVPWJNkOSj': 'plan_500',
+  'cplan_33l2ONRsdHgAyPiYJnwXAOdVQxx': 'plan_2000',
+  // Also support readable or generic names
+  '100_pages': 'plan_100',
+  '500_pages': 'plan_500',
+  '2000_pages': 'plan_2000',
 };
 
 export const useSubscription = (): SubscriptionInfo => {
   const { user } = useUser();
 
-  // Check if user has subscription plan in their metadata
-  const rawPlan = user?.publicMetadata?.subscriptionPlan as string;
-  
-  // Debug: Log para ver qué está recibiendo
-  console.log('🔍 Debug Subscription:', {
-    userId: user?.id,
-    publicMetadata: user?.publicMetadata,
-    rawPlan,
-    allMetadata: user
-  });
-  
-  // Convertir el Plan Key de Clerk a nuestro nombre interno
+  // Force-refresh user data from Clerk on mount to pick up plan changes
+  useEffect(() => {
+    if (user) {
+      user.reload().catch(console.error);
+    }
+  }, [user?.id]);
+
+  // Clerk can store the plan in different metadata fields depending on webhook setup
+  const rawPlan = (
+    user?.publicMetadata?.subscriptionPlan ||
+    user?.publicMetadata?.planId ||
+    (user?.publicMetadata?.subscription as any)?.planId
+  ) as string | undefined;
+
+  console.log('🔍 Subscription metadata:', user?.publicMetadata);
+
+  // Convert Clerk Plan Key to our internal name
   let userPlan: SubscriptionPlan = 'free';
   if (rawPlan) {
     userPlan = CLERK_PLAN_KEY_MAP[rawPlan] || (rawPlan as SubscriptionPlan) || 'free';
   }
-  
+
   const isPaidUser = userPlan !== 'free';
-  
+
   // Check if free trial is active (7 days from account creation)
   const accountCreatedAt = user?.createdAt ? new Date(user.createdAt) : null;
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const isFreeTrialActive = accountCreatedAt ? accountCreatedAt > sevenDaysAgo : false;
+  const isFreeTrialActive = !isPaidUser && !!(accountCreatedAt && accountCreatedAt > sevenDaysAgo);
 
   return {
     plan: userPlan,

@@ -25,11 +25,11 @@ export const useUsageLimit = () => {
 
     const storageKey = `${STORAGE_KEY}_${user.id}`;
     const savedUsage = localStorage.getItem(storageKey);
-    
+
     if (savedUsage) {
       const parsed = JSON.parse(savedUsage) as UsageData;
       const currentMonth = getCurrentMonth();
-      
+
       // Reset if it's a new month
       if (parsed.lastResetDate !== currentMonth) {
         const resetUsage = { pagesProcessedThisMonth: 0, lastResetDate: currentMonth };
@@ -49,22 +49,22 @@ export const useUsageLimit = () => {
       pagesProcessedThisMonth: usage.pagesProcessedThisMonth + pageCount,
       lastResetDate: usage.lastResetDate,
     };
-    
+
     setUsage(newUsage);
     localStorage.setItem(storageKey, JSON.stringify(newUsage));
   };
 
   const canProcessPages = (pageCount: number): boolean => {
     if (!isSignedIn) return false;
-    // Durante el free trial, permitir procesar páginas
+    // During free trial, allow processing pages
     if (isFreeTrialActive) return true;
-    // Después del trial, solo usuarios de pago pueden continuar
+    // After trial, only paid users can continue
     if (!isPaidUser) return false;
     return (usage.pagesProcessedThisMonth + pageCount) <= limits.pagesPerMonth;
   };
 
   const getRemainingPages = (): number => {
-    // Calcular páginas restantes independientemente del estado del trial
+    // Calculate remaining pages independently of trial status
     return Math.max(0, limits.pagesPerMonth - usage.pagesProcessedThisMonth);
   };
 

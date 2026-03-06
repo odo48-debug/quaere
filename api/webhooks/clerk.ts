@@ -4,7 +4,7 @@ import { createClerkClient } from '@clerk/backend';
 
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-// Función para leer el body del request
+// Function to read request body
 async function getRawBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -19,7 +19,7 @@ async function getRawBody(req: IncomingMessage): Promise<string> {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  // Solo aceptar POST requests
+  // Only accept POST requests
   if (req.method !== 'POST') {
     res.statusCode = 405;
     res.setHeader('Content-Type', 'application/json');
@@ -29,10 +29,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   try {
     const rawBody = await getRawBody(req);
-    
-    // Verificar la firma del webhook (seguridad)
+
+    // Verify webhook signature (security)
     const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
-    
+
     if (webhookSecret) {
       const svixHeaders = {
         'svix-id': (req.headers as any)['svix-id'] || '',
@@ -41,11 +41,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       };
 
       const wh = new Webhook(webhookSecret);
-      
+
       try {
         wh.verify(rawBody, svixHeaders);
       } catch (err) {
-        console.error('❌ Error verificando webhook:', err);
+        console.error('❌ Error verifying webhook:', err);
         res.statusCode = 400;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ error: 'Invalid signature' }));
@@ -55,44 +55,44 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     const payload = JSON.parse(rawBody);
 
-    console.log('📨 Webhook recibido:', {
+    console.log('📨 Webhook received:', {
       type: payload.type,
       data: payload.data
     });
 
-    // Manejar diferentes tipos de eventos
+    // Handle different event types
     switch (payload.type) {
-      // Eventos de suscripción
+      // Subscription events
       case 'subscription.created':
       case 'subscription.updated':
       case 'subscription.active':
         await handleSubscriptionUpdate(payload);
         break;
-      
+
       case 'subscription.pastDue':
         await handleSubscriptionPastDue(payload);
         break;
-      
-      // Eventos de items de suscripción
+
+      // Subscription item events
       case 'subscriptionItem.created':
       case 'subscriptionItem.updated':
         await handleSubscriptionUpdate(payload);
         break;
-      
+
       case 'subscriptionItem.canceled':
       case 'subscriptionItem.ended':
         await handleSubscriptionCancellation(payload);
         break;
-      
+
       default:
-        console.log('ℹ️ Evento no manejado:', payload.type);
+        console.log('ℹ️ Unhandled event:', payload.type);
     }
 
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ received: true }));
   } catch (error) {
-    console.error('❌ Error procesando webhook:', error);
+    console.error('❌ Error processing webhook:', error);
     res.statusCode = 500;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ error: 'Internal server error' }));
@@ -103,7 +103,7 @@ async function handleSubscriptionUpdate(payload: any) {
   const userId = payload.data.user_id;
   const planId = payload.data.plan_id;
 
-  console.log('✅ Actualizando suscripción:', { userId, planId });
+  console.log('✅ Updating subscription:', { userId, planId });
 
   try {
     await clerkClient.users.updateUserMetadata(userId, {
@@ -111,9 +111,9 @@ async function handleSubscriptionUpdate(payload: any) {
         subscriptionPlan: planId
       }
     });
-    console.log('✅ Metadata actualizado correctamente');
+    console.log('✅ Metadata updated successfully');
   } catch (error) {
-    console.error('❌ Error actualizando metadata:', error);
+    console.error('❌ Error updating metadata:', error);
     throw error;
   }
 }
@@ -121,17 +121,17 @@ async function handleSubscriptionUpdate(payload: any) {
 async function handleSubscriptionPastDue(payload: any) {
   const userId = payload.data.user_id;
 
-  console.log('⚠️ Suscripción vencida (pastDue):', { userId });
+  console.log('⚠️ Subscription past due (pastDue):', { userId });
 
-  // Por ahora solo logueamos, podrías enviar un email o mantener el plan activo temporalmente
-  // Opcionalmente, podrías cambiar a 'free' después de X días
-  console.log('ℹ️ Suscripción marcada como vencida, pero manteniendo acceso temporal');
+  // For now we just log, you could send an email or keep plan active temporarily
+  // Optionally, you could change to 'free' after X days
+  console.log('ℹ️ Subscription marked as past due, but maintaining temporary access');
 }
 
 async function handleSubscriptionCancellation(payload: any) {
   const userId = payload.data.user_id;
 
-  console.log('❌ Cancelando suscripción:', { userId });
+  console.log('❌ Canceling subscription:', { userId });
 
   try {
     await clerkClient.users.updateUserMetadata(userId, {
@@ -139,7 +139,7 @@ async function handleSubscriptionCancellation(payload: any) {
         subscriptionPlan: 'free'
       }
     });
-    console.log('✅ Suscripción cancelada, metadata actualizado a free');
+    console.log('✅ Subscription canceled, metadata updated to free');
   } catch (error) {
     console.error('❌ Error cancelando suscripción:', error);
     throw error;

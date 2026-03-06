@@ -10,29 +10,25 @@ interface PricingTier {
 }
 
 const pricingTiers: PricingTier[] = [
-  { pages: 1000, price: 9, label: '1K' },
-  { pages: 5000, price: 19, label: '5K' },
-  { pages: 10000, price: 29, label: '10K' },
-  { pages: 20000, price: 39, label: '20K' },
-  { pages: 40000, price: 49, label: '40K' },
+  { pages: 100, price: 9.99, label: '100' },
+  { pages: 500, price: 19.99, label: '500' },
+  { pages: 2000, price: 29.99, label: '2K' },
 ];
 
 export const PricingCard: React.FC = () => {
-  const [selectedTierIndex, setSelectedTierIndex] = useState(2); // Default to 20K
+  const [selectedTierIndex, setSelectedTierIndex] = useState(1); // Default to 500
   const { subscribeToPlan } = useClerkBilling();
   const { isSignedIn } = useUser();
 
   const selectedTier = pricingTiers[selectedTierIndex];
   const displayPrice = selectedTier.price;
-  
+
   // Mapear el tier a un plan ID de Clerk (usando los Plan Keys de producción)
   const getPlanId = (tierIndex: number): string => {
     const clerkPlanIds = [
-      import.meta.env.VITE_PLAN_1K || 'cplan_319hW2htCwc28QLuofa6V11jwmf',    // 1000_pages
-      import.meta.env.VITE_PLAN_5K || 'cplan_33qFJk5cGYUXNFYDawgsXWarwXj',    // 5000_pages
-      import.meta.env.VITE_PLAN_10K || 'cplan_33qNbCHvQp2wAZkzNniwqmX1exZ',   // 10000_pages
-      import.meta.env.VITE_PLAN_20K || 'cplan_33qNlc6TwLpUh3BdqMYBJbdYLQZ',   // 20000_pages
-      import.meta.env.VITE_PLAN_40K || 'cplan_33qOHQx7ztKhoaJeipqwfkt4TuY',   // 40000_pages
+      import.meta.env.VITE_PLAN_100 || 'cplan_30VxITOcfVN0hdOhJXvXuWjspgl',   // 100_pages
+      import.meta.env.VITE_PLAN_500 || 'cplan_33l2AseFDpR7GMjqvzVPWJNkOSj',   // 500_pages
+      import.meta.env.VITE_PLAN_2000 || 'cplan_33l2ONRsdHgAyPiYJnwXAOdVQxx',   // 2000_pages
     ];
     return clerkPlanIds[tierIndex];
   };
@@ -52,13 +48,13 @@ export const PricingCard: React.FC = () => {
       {/* Slider Section */}
       <div className="mb-8">
         <div className="bg-gray-800 text-white px-4 py-2 rounded-lg inline-block mb-4">
-          Up to {formatPages(selectedTier.pages)} monthly pages
+          Up to {formatPages(selectedTier.pages)} monthly pages processing
         </div>
-        
+
         <div className="relative">
           <div className="flex justify-between text-sm text-gray-400 mb-2">
-            <span>1K</span>
-            <span>40K</span>
+            <span>100</span>
+            <span>2K</span>
           </div>
           <input
             type="range"
@@ -79,7 +75,7 @@ export const PricingCard: React.FC = () => {
         {/* Price */}
         <div className="mb-6">
           <div className="flex items-baseline gap-2">
-            <span className="text-6xl font-bold text-white">${displayPrice}</span>
+            <span className="text-6xl font-bold text-white">€{displayPrice.toFixed(2)}</span>
             <span className="text-gray-400 text-xl">/month</span>
           </div>
         </div>
@@ -88,7 +84,7 @@ export const PricingCard: React.FC = () => {
         <div className="space-y-4 mb-8">
           <div className="flex items-center gap-3 text-gray-300">
             <IconCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>{formatPages(selectedTier.pages)} monthly pages</span>
+            <span>{formatPages(selectedTier.pages)} monthly pages processing</span>
           </div>
           <div className="flex items-center gap-3 text-gray-300">
             <IconCheck className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -101,19 +97,19 @@ export const PricingCard: React.FC = () => {
         </div>
 
         {/* CTA Button */}
-        <button 
+        <button
           onClick={() => subscribeToPlan(getPlanId(selectedTierIndex))}
           className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-4 px-6 rounded-lg transition-all flex items-center justify-center gap-2 group"
         >
-          {isSignedIn 
-            ? `Subscribe to ${formatPages(selectedTier.pages)} monthly pages`
+          {isSignedIn
+            ? `Subscribe — ${formatPages(selectedTier.pages)} pages/month`
             : 'Start 7-day free trial'
           }
           <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </button>
 
         <p className="text-center text-gray-400 text-sm mt-4">
-          No credit card required.
+          7-day free trial · 100 pages included · No credit card required.
         </p>
       </div>
 

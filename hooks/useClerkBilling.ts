@@ -6,36 +6,36 @@ export const useClerkBilling = () => {
   const { openSignUp } = useClerk();
   const { isPaidUser } = useSubscription();
 
-  // Obtener la suscripción activa del usuario
+  // Get the user's active subscription
   const activeSubscription = user?.publicMetadata?.subscription as any;
-  
-  // Verificar si tiene una suscripción activa
+
+  // Check if they have an active subscription
   const hasActiveSubscription = activeSubscription?.status === 'active';
-  
-  // Obtener el plan actual
+
+  // Get current plan
   const currentPlan = activeSubscription?.planId || 'free';
-  
-  // Función para redirigir al portal de billing de Clerk
+
+  // Function to redirect to Clerk's billing portal
   const openBillingPortal = () => {
-    // Redirigir al portal de usuario de Clerk donde puede gestionar su suscripción
-    // En desarrollo: https://blessed-snapper-43.accounts.dev/user
-    // En producción: https://accounts.clerk.com/user (o tu dominio personalizado)
+    // Redirect to Clerk user portal where they can manage their subscription
+    // In development: https://blessed-snapper-43.accounts.dev/user
+    // In production: https://accounts.clerk.com/user (or custom domain)
     // 
-    // En este portal el usuario puede:
-    // - Ver su plan actual
-    // - Cambiar de plan (upgrade/downgrade)
-    // - Suscribirse si no tiene plan
-    // - Ver próxima fecha de renovación
-    // - Actualizar método de pago
-    // - Cancelar suscripción
-    // - Ver historial de pagos
+    // In this portal the user can:
+    // - View current plan
+    // - Change plan (upgrade/downgrade)
+    // - Subscribe if they don't have a plan
+    // - See next renewal date
+    // - Update payment method
+    // - Cancel subscription
+    // - View billing history
     window.location.href = 'https://blessed-snapper-43.accounts.dev/user';
   };
 
-  // Función para iniciar el checkout de un plan
+  // Function to start a plan checkout
   const subscribeToPlan = (planId: string) => {
     if (!isSignedIn) {
-      // Si no está logueado, abrir signup con el plan en los metadatos
+      // If not logged in, open signup with plan in metadata
       openSignUp({
         afterSignUpUrl: `/?subscribe=${planId}`,
         unsafeMetadata: {
@@ -43,8 +43,8 @@ export const useClerkBilling = () => {
         },
       });
     } else {
-      // Si ya está logueado, ir directamente al checkout de Clerk
-      // Nota: Clerk maneja la ruta de suscripción automáticamente
+      // If already logged in, go directly to Clerk checkout
+      // Note: Clerk handles the subscription route automatically
       window.location.href = `https://accounts.clerk.com/subscribe?plan=${planId}`;
     }
   };

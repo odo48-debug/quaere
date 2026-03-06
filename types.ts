@@ -48,3 +48,25 @@ export interface Annotation {
   y: number; // Relative coordinate (0-1)
   text: string;
 }
+
+export type ColumnType = 'string' | 'number' | 'date' | 'json' | 'boolean';
+
+export interface DatabaseColumn {
+  id: string;
+  name: string;
+  type: ColumnType;
+  formula?: string; // e.g., "{col1} * {col2}" or "{col3} * 1.21"
+}
+
+export interface DatabaseRow {
+  id: string;
+  autoNumber: string | number;
+  createdAt: string;
+  [columnId: string]: string | number;
+}
+
+export interface LocalDatabase {
+  columns: DatabaseColumn[];
+  rows: DatabaseRow[];
+  nextAutoNumber: number;
+}

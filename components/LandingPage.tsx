@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUser } from '@clerk/clerk-react';
-import { IconSparkles, IconShieldCheck, IconChat, IconQuote, IconCheck, IconZap, IconCrown, IconArrowRight, IconBook } from './icons';
+import { IconSparkles, IconShieldCheck, IconCheck, IconArrowRight } from './icons';
 import { SignInButton } from './auth/SignInButton';
 import { SignUpButton } from './auth/SignUpButton';
 import { UserButton } from './auth/UserButton';
@@ -13,81 +13,105 @@ interface LandingPageProps {
   onShowPrivacyPolicy?: () => void;
 }
 
+const USE_CASES = [
+  { emoji: '🧾', label: 'Invoices & receipts' },
+  { emoji: '📄', label: 'Contracts' },
+  { emoji: '📦', label: 'Delivery notes' },
+  { emoji: '💊', label: 'Medical reports' },
+  { emoji: '🏠', label: 'Rental agreements' },
+  { emoji: '📊', label: 'Bank statements' },
+  { emoji: '👔', label: 'CVs & job applications' },
+  { emoji: '⚖️', label: 'Legal documents' },
+];
+
+const STEPS = [
+  {
+    num: '01',
+    title: 'Upload your documents',
+    desc: 'Drop PDFs or images. Works with scanned documents, invoices, contracts, reports — any format.',
+    color: 'from-blue-500 to-indigo-500',
+  },
+  {
+    num: '02',
+    title: 'AI extracts & maps the data',
+    desc: 'Quaere reads every field — dates, amounts, parties, signatures — and maps them to your table columns automatically.',
+    color: 'from-indigo-500 to-purple-500',
+  },
+  {
+    num: '03',
+    title: 'Stored locally. Always.',
+    desc: 'Your extracted data lives in a real PostgreSQL database inside your browser. Zero cloud, zero vendor, zero data leaving your machine.',
+    color: 'from-purple-500 to-pink-500',
+  },
+  {
+    num: '04',
+    title: 'Ask in any language',
+    desc: '"Show me the 5 highest invoices from January" — no SQL needed. Ask in Spanish, English, French or any language you prefer.',
+    color: 'from-pink-500 to-rose-500',
+  },
+];
+
+const PRIVACY_POINTS = [
+  'Your files never leave your browser',
+  'PostgreSQL runs locally — zero cloud storage',
+  'GDPR compliant by design',
+  'No vendor lock-in',
+];
+
+// Animated ticker for use cases
+const UseCaseTicker: React.FC = () => {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % USE_CASES.length), 1800);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="inline-flex items-center gap-2 text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent transition-all duration-500">
+      {USE_CASES[idx].emoji} {USE_CASES[idx].label}
+    </span>
+  );
+};
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onShowDocumentation, onShowPrivacyPolicy }) => {
   const { isSignedIn } = useUser();
 
-  // Agregar clase dark-mode al body y html cuando se monta el componente
   useEffect(() => {
     document.body.classList.add('dark-mode');
     document.documentElement.classList.add('dark-mode');
-    
-    // Limpiar al desmontar
     return () => {
       document.body.classList.remove('dark-mode');
       document.documentElement.classList.remove('dark-mode');
     };
   }, []);
 
-  const features = [
-    {
-      icon: IconShieldCheck,
-      title: 'Secure & Private',
-      description: 'Your documents are processed entirely in your browser. Nothing is ever uploaded to a server, ensuring your data remains confidential.'
-    },
-    {
-      icon: IconChat,
-      title: 'AI-Powered Chat',
-      description: 'Ask complex questions in natural language. Get instant answers based exclusively on your document content.'
-    },
-    {
-      icon: IconQuote,
-      title: 'Source Highlighting',
-      description: 'Verify AI answers with one click. Instantly highlight the exact text in the PDF that supports each response.'
-    },
-    {
-      icon: IconZap,
-      title: 'Lightning Fast',
-      description: 'Optimized processing pipeline delivers instant results. No waiting, no delays—just pure productivity.'
-    }
-  ];
-
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black w-full">
-      {/* Navigation Header */}
-      <nav className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-gray-700 shadow-sm w-full">
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black w-full overflow-x-hidden">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <IconSparkles className="w-8 h-8 text-blue-500" />
-              <span className="text-xl font-bold text-white">Quaere</span>
+              <IconSparkles className="w-7 h-7 text-blue-400" />
+              <span className="text-xl font-extrabold text-white tracking-tight">Quaere</span>
             </div>
             <div className="flex items-center gap-4">
               {onShowDocumentation && (
-                <button
-                  onClick={onShowDocumentation}
-                  className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-                >
-                  Documentation
+                <button onClick={onShowDocumentation} className="hidden sm:block text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                  Docs
                 </button>
               )}
               {isSignedIn ? (
                 <>
-                  <button
-                    onClick={onGetStarted}
-                    className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hover:shadow-lg transition-all"
-                  >
-                    Go to App
+                  <button onClick={onGetStarted} className="px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hover:shadow-lg transition-all">
+                    Open App
                   </button>
                   <UserButton />
                 </>
               ) : (
                 <>
-                  <SignInButton className="px-6 py-2 text-sm font-semibold text-gray-300 hover:text-white transition-colors">
-                    Sign In
-                  </SignInButton>
-                  <SignUpButton className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hover:shadow-lg transition-all">
-                    Sign Up
+                  <SignInButton className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Sign In</SignInButton>
+                  <SignUpButton className="px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hover:shadow-lg transition-all">
+                    Start Free
                   </SignUpButton>
                 </>
               )}
@@ -96,140 +120,138 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onShowDo
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="text-center space-y-8 animate-fadeInUp">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-900/50 text-blue-300 rounded-full text-sm font-semibold border border-blue-700">
-              <IconShieldCheck className="w-4 h-4" />
-              Privacy-First Document Analysis
-            </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight">
-              Analyze PDFs with  
-              <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                AI-Powered Intelligence
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              Analyze and chat with your PDFs instantly. 100% local, private, and secure AI document processing — no uploads, no servers.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
-              {isSignedIn ? (
-                <button
-                  onClick={onGetStarted}
-                  className="group px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center gap-2"
-                >
-                  Go to App
-                  <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              ) : (
-                <SignUpButton className="group px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 flex items-center gap-2">
-                  Get Started Free
-                  <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </SignUpButton>
-              )}
-              <button
-                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 text-lg font-semibold text-white bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:shadow-xl hover:bg-gray-700 transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gray-600"
-              >
-                View Pricing
-              </button>
-            </div>
-            <p className="mt-6 text-sm text-gray-400">
-              7-day free trial • No credit card required 
-            </p>
-          </div>
+      {/* HERO */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20 text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 bg-blue-900/40 text-blue-300 rounded-full text-xs font-bold border border-blue-800 uppercase tracking-widest">
+          <IconShieldCheck className="w-3.5 h-3.5" />
+          Privacy-first · Runs 100% in your browser
+        </div>
+
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4">
+          Stop copying PDFs<br />
+          <span className="text-gray-500">into spreadsheets.</span>
+        </h1>
+
+        <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-6 leading-relaxed">
+          Drag in your documents, and let AI extract every field into a live database — in seconds. Then ask anything in your own language.
+        </p>
+
+        {/* Live use-case ticker */}
+        <div className="text-center py-4 mb-10 min-h-[60px] flex items-center justify-center">
+          <UseCaseTicker />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {isSignedIn ? (
+            <button onClick={onGetStarted} className="group inline-flex items-center gap-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+              Open my workspace <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          ) : (
+            <SignUpButton className="group inline-flex items-center gap-2 px-8 py-4 text-base font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+              Try it free — no credit card <IconArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </SignUpButton>
+          )}
+          <button
+            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+            className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-gray-300 bg-gray-800 border border-gray-700 rounded-full hover:bg-gray-700 hover:scale-105 transition-all"
+          >
+            See how it works
+          </button>
+        </div>
+
+        <p className="mt-6 text-xs text-gray-600">No data leaves your browser</p>
+      </div>
+
+      {/* Social proof / document types strip */}
+      <div className="border-y border-gray-800 bg-gray-900/40 py-6 overflow-hidden">
+        <div className="flex gap-6 animate-[scroll_20s_linear_infinite] whitespace-nowrap w-max">
+          {[...USE_CASES, ...USE_CASES].map((u, i) => (
+            <span key={i} className="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-full font-medium">
+              {u.emoji} {u.label}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      {/* HOW IT WORKS */}
+      <div id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Why Choose Quaere?
-          </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Powerful features designed to transform how you work with documents
-          </p>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">How it works</h2>
+          <p className="text-lg text-gray-400 max-w-xl mx-auto">Three steps between your pile of PDFs and a structured, queryable database.</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="group p-8 bg-gray-800/50 border border-gray-700 rounded-2xl shadow-lg hover:shadow-2xl hover:border-blue-500/50 transform hover:-translate-y-2 transition-all duration-300 animate-fadeInUp"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <feature.icon className="w-7 h-7 text-white" />
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {STEPS.map((step) => (
+            <div key={step.num} className="group bg-gray-800/50 border border-gray-700 rounded-2xl p-8 hover:border-blue-500/50 hover:-translate-y-1 transition-all">
+              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} text-white text-lg font-extrabold mb-6`}>
+                {step.num}
               </div>
-              <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
+              <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+              <p className="text-gray-400 leading-relaxed">{step.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Pricing Section */}
+      {/* PRIVACY BLOCK */}
+      <div className="bg-gradient-to-r from-blue-950 via-indigo-950 to-purple-950 border-y border-blue-900/50 py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-5xl mb-6">🔒</div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Your documents never leave your computer
+          </h2>
+          <p className="text-lg text-blue-300 mb-10 max-w-2xl mx-auto">
+            Quaere embeds a full PostgreSQL database inside your browser. No cloud storage, no SaaS vendors who can read your invoices, no GDPR headaches.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4 max-w-xl mx-auto text-left">
+            {PRIVACY_POINTS.map((p) => (
+              <div key={p} className="flex items-center gap-3 text-blue-200 bg-blue-900/30 border border-blue-800 rounded-xl px-4 py-3">
+                <IconCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
+                <span className="text-sm font-medium">{p}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* PRICING */}
       <div id="pricing" className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-24">
         <PricingCard />
       </div>
 
-      {/* Video Demo Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            See Quaere in Action
-          </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Watch how Quaere transforms your PDF workflow with AI-powered intelligence
-          </p>
-        </div>
-        
-        <div className="max-w-5xl mx-auto">
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ paddingBottom: '56.25%' }}>
-            <iframe
-              className="absolute top-0 left-0 w-full h-full"
-              src="https://www.youtube.com/embed/Y05ZDGX9FAM"
-              title="Quaere Demo"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        </div>
-
-        <div className="text-center mt-12">
-          <button
-            onClick={onGetStarted}
-            className="group px-10 py-5 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-purple-300 inline-flex items-center gap-2"
-          >
-            Start Analyzing Now
-            <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+      {/* BOTTOM CTA */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+          Ready to stop the copy-paste?
+        </h2>
+        <p className="text-lg text-gray-400 mb-10">
+          Start for free. No credit card, no installation, no cloud storage. Just drag a PDF and watch the magic happen.
+        </p>
+        {isSignedIn ? (
+          <button onClick={onGetStarted} className="group inline-flex items-center gap-2 px-10 py-5 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+            Open my workspace <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-        </div>
+        ) : (
+          <SignUpButton className="group inline-flex items-center gap-2 px-10 py-5 text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+            Start for free <IconArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </SignUpButton>
+        )}
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <IconSparkles className="w-6 h-6 text-blue-500" />
-            <span className="text-xl font-bold text-white">Quaere</span>
+      {/* FOOTER */}
+      <footer className="bg-gray-950 border-t border-gray-800 text-gray-500 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <IconSparkles className="w-5 h-5 text-blue-500" />
+            <span className="font-bold text-gray-300">Quaere</span>
+            <span className="text-xs text-gray-600 ml-2">© 2025</span>
           </div>
-          <p className="text-sm">
-            2025 Quaere. All rights reserved. • Privacy-first document analysis.
-          </p>
-          <div className="mt-4">
-            <a
-              href="/privacy-policy.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-400 hover:text-white transition-colors underline"
-            >
-              Privacy Policy
-            </a>
+          <div className="flex items-center gap-6 text-sm">
+            {onShowDocumentation && (
+              <button onClick={onShowDocumentation} className="hover:text-white transition-colors">Docs</button>
+            )}
+            {onShowPrivacyPolicy && (
+              <button onClick={onShowPrivacyPolicy} className="hover:text-white transition-colors">Privacy Policy</button>
+            )}
           </div>
         </div>
       </footer>

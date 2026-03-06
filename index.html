@@ -1,190 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quaere</title>
-    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                DEFAULT: '#4f46e5',
-                light: '#6366f1',
-                dark: '#4338ca',
-              },
-              secondary: '#10b981',
-              background: '#f8fafc',
-              surface: '#ffffff',
-              'on-surface': '#1f2937',
-              'on-primary': '#ffffff'
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quaere</title>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#4f46e5',
+              light: '#6366f1',
+              dark: '#4338ca',
             },
-            keyframes: {
-              fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(10px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              }
+            secondary: '#10b981',
+            background: '#f8fafc',
+            surface: '#ffffff',
+            'on-surface': '#1f2937',
+            'on-primary': '#ffffff'
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
             },
-            animation: {
-              fadeInUp: 'fadeInUp 0.5s ease-out forwards',
+            scroll: {
+              '0%': { transform: 'translateX(0)' },
+              '100%': { transform: 'translateX(-50%)' },
             }
+          },
+          animation: {
+            fadeInUp: 'fadeInUp 0.5s ease-out forwards',
+            scroll: 'scroll 25s linear infinite',
           }
         }
       }
-    </script>
-    <style>
-      /* Fondo por defecto (claro para la app) */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      html {
-        overflow-y: scroll;
-        overflow-x: hidden;
-        height: 100%;
-        margin-right: 0 !important;
-        padding-right: 0 !important;
-      }
-      
-      body {
-        background-color: #f8fafc; /* background claro por defecto */
-        width: 100%;
-        min-height: 100%;
-        margin: 0 !important;
-        padding: 0 !important;
-        margin-right: 0 !important;
-        padding-right: 0 !important;
-      }
-      
-      #root {
-        min-height: 100vh;
-      }
-      
-      /* Fondo oscuro solo cuando está la landing page */
-      body.dark-mode {
-        background-color: #0f172a; /* slate-900 */
-      }
-      
-      html.dark-mode {
-        background-color: #0f172a; /* slate-900 */
-      }
-      
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background-color: #f1f5f9; /* gray-100 */
-        border-radius: 10px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #d1d5db; /* gray-300 */
-        border-radius: 10px;
-        border: 2px solid #f1f5f9; /* gray-100, creates padding */
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background-color: #9ca3af; /* gray-400 */
-      }
-      /* For Firefox */
-      .custom-scrollbar {
-        scrollbar-width: thin;
-        scrollbar-color: #d1d5db #f1f5f9;
-      }
-      /* Style for highlighted text */
-      mark {
-        background-color: #fef08a; /* yellow-200 */
-        padding: 0.1em 0.2em;
-        border-radius: 0.2em;
-      }
-      
-      /* Dark scrollbar for landing page */
-      .custom-scrollbar-dark::-webkit-scrollbar {
-        width: 12px;
-      }
-      .custom-scrollbar-dark::-webkit-scrollbar-track {
-        background-color: #0f172a; /* slate-900 */
-      }
-      .custom-scrollbar-dark::-webkit-scrollbar-thumb {
-        background-color: #1e293b; /* slate-800 */
-        border-radius: 0;
-      }
-      .custom-scrollbar-dark::-webkit-scrollbar-thumb:hover {
-        background-color: #334155; /* slate-700 */
-      }
-      /* For Firefox */
-      .custom-scrollbar-dark {
-        scrollbar-width: thin;
-        scrollbar-color: #1e293b #0f172a;
-      }
-      
-      /* Forzar scrollbar oscuro en todo el body */
-      body::-webkit-scrollbar {
-        width: 12px;
-      }
-      body::-webkit-scrollbar-track {
-        background-color: #0f172a;
-      }
-      body::-webkit-scrollbar-thumb {
-        background-color: #1e293b;
-        border-radius: 0;
-      }
-      body::-webkit-scrollbar-thumb:hover {
-        background-color: #334155;
-      }
-      
-      /* Eliminar cualquier margen del scrollbar */
-      html::-webkit-scrollbar {
-        width: 100%;
-        max-width: 12px;
-      }
-      html::-webkit-scrollbar-track {
-        background-color: #0f172a;
-        margin: 0;
-        border: none;
-      }
-      html::-webkit-scrollbar-thumb {
-        background-color: #1e293b;
-        border-radius: 0;
-        border: none;
-        margin: 0;
-      }
-      html::-webkit-scrollbar-thumb:hover {
-        background-color: #334155;
-      }
-      
-      /* Forzar que el scrollbar esté pegado al borde */
-      ::-webkit-scrollbar {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-track {
-        margin: 0;
-        border: none;
-      }
-      ::-webkit-scrollbar-thumb {
-        border: none;
-        margin: 0;
-      }
-    </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.21.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-markdown": "https://aistudiocdn.com/react-markdown@^9.0.1",
-    "remark-gfm": "https://aistudiocdn.com/remark-gfm@^4.0.0"
-  }
-}
-</script>
+    }
+  </script>
+  <style>
+    /* Fondo por defecto (claro para la app) */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      overflow-y: scroll;
+      overflow-x: hidden;
+      height: 100%;
+      margin-right: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    body {
+      background-color: #f8fafc;
+      /* background claro por defecto */
+      width: 100%;
+      min-height: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+      margin-right: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    /* Fondo oscuro solo cuando está la landing page */
+    body.dark-mode {
+      background-color: #0f172a;
+      /* slate-900 */
+    }
+
+    html.dark-mode {
+      background-color: #0f172a;
+      /* slate-900 */
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background-color: #f1f5f9;
+      /* gray-100 */
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #d1d5db;
+      /* gray-300 */
+      border-radius: 10px;
+      border: 2px solid #f1f5f9;
+      /* gray-100, creates padding */
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background-color: #9ca3af;
+      /* gray-400 */
+    }
+
+    /* For Firefox */
+    .custom-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: #d1d5db #f1f5f9;
+    }
+
+    /* Style for highlighted text */
+    mark {
+      background-color: #fef08a;
+      /* yellow-200 */
+      padding: 0.1em 0.2em;
+      border-radius: 0.2em;
+    }
+
+    /* Dark scrollbar for landing page */
+    .custom-scrollbar-dark::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .custom-scrollbar-dark::-webkit-scrollbar-track {
+      background-color: #0f172a;
+      /* slate-900 */
+    }
+
+    .custom-scrollbar-dark::-webkit-scrollbar-thumb {
+      background-color: #1e293b;
+      /* slate-800 */
+      border-radius: 0;
+    }
+
+    .custom-scrollbar-dark::-webkit-scrollbar-thumb:hover {
+      background-color: #334155;
+      /* slate-700 */
+    }
+
+    /* For Firefox */
+    .custom-scrollbar-dark {
+      scrollbar-width: thin;
+      scrollbar-color: #1e293b #0f172a;
+    }
+
+    /* Forzar scrollbar oscuro en todo el body */
+    body::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    body::-webkit-scrollbar-track {
+      background-color: #0f172a;
+    }
+
+    body::-webkit-scrollbar-thumb {
+      background-color: #1e293b;
+      border-radius: 0;
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background-color: #334155;
+    }
+
+    /* Eliminar cualquier margen del scrollbar */
+    html::-webkit-scrollbar {
+      width: 100%;
+      max-width: 12px;
+    }
+
+    html::-webkit-scrollbar-track {
+      background-color: #0f172a;
+      margin: 0;
+      border: none;
+    }
+
+    html::-webkit-scrollbar-thumb {
+      background-color: #1e293b;
+      border-radius: 0;
+      border: none;
+      margin: 0;
+    }
+
+    html::-webkit-scrollbar-thumb:hover {
+      background-color: #334155;
+    }
+
+    /* Forzar que el scrollbar esté pegado al borde */
+    ::-webkit-scrollbar {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-track {
+      margin: 0;
+      border: none;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border: none;
+      margin: 0;
+    }
+
+    /* TAG HIGHLIGHTS (Screen vs PDF) */
+    .tag-highlight {
+      background-color: #dbeafe;
+      /* blue-100 */
+      padding: 0 0.25rem;
+      border-radius: 0.25rem;
+      border-bottom: 1px solid #93c5fd;
+      /* blue-300 */
+      color: #1e40af;
+      /* blue-800 */
+    }
+
+    .system-tag-highlight {
+      background-color: #f1f5f9;
+      /* gray-100 */
+      padding: 0 0.25rem;
+      border-radius: 0.25rem;
+      border-bottom: 1px solid #d1d5db;
+      /* gray-300 */
+      color: #374151;
+      /* gray-700 */
+    }
+
+    .missing-tag-highlight {
+      background-color: #fef2f2;
+      /* red-50 */
+      color: #ef4444;
+      /* red-500 */
+      font-style: italic;
+      padding: 0 0.25rem;
+    }
+
+    .pdf-export-mode .tag-highlight,
+    .pdf-export-mode .system-tag-highlight,
+    .pdf-export-mode .missing-tag-highlight {
+      background-color: transparent !important;
+      border-bottom: none !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-style: normal !important;
+    }
+
+    /* DYNAMIC TABLES */
+    .dynamic-table-container {
+      margin: 1.5rem 0;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .dynamic-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dynamic-table th {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    .dynamic-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.75rem;
+      color: #1e293b;
+    }
+
+    .dynamic-table tr:nth-child(even) {
+      background-color: #fcfcfd;
+    }
+
+    .pdf-export-mode .dynamic-table th {
+      background-color: #f1f5f9 !important;
+      color: #000 !important;
+    }
+  </style>
 </head>
+
 <body class="text-on-surface">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>
