@@ -14,7 +14,7 @@ from composio import ComposioToolSet
 dotenv_path = Path(__file__).resolve().parent.parent / '.env'
 load_dotenv(dotenv_path=dotenv_path)
 
-from ocr_processor import OCRProcessor
+
 from database_chat_agent import DatabaseChatAgent
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
@@ -51,61 +51,82 @@ async def process_document(file: UploadFile = File(...)):
         tmp_path = tmp_file.name
 
     try:
-        # Common Tesseract paths on Windows
-        tesseract_paths = [
-            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-            r"C:\Users\AppData\Local\Tesseract-OCR\tesseract.exe",
-            "/usr/bin/tesseract",
-            os.getenv("TESSERACT_PATH", "")
-        ]
-        
-        tesseract_exe = None
-        for path in tesseract_paths:
-            if path and os.path.exists(path):
-                tesseract_exe = path
-                break
-
-        # Initialize OCRProcessor with Spanish and English support
-        processor = OCRProcessor(tmp_path, lang='spa+eng', tesseract_path=tesseract_exe)
-        
-        # Preprocess for better accuracy if it's an image
-        if suffix.lower() in ['.png', '.jpg', '.jpeg', '.tiff']:
-            processor.preprocess(denoise=True, contrast=1.2)
+        if suffix.lower() == '.pdf':
+            import pdfplumber
+            pages_data = []
+            has_extracted_text = False
             
-        result = processor.extract_structured()
-        
-        pages_data = []
-        
-        # Group lines by page for the frontend
-        for page_idx in range(result['pages']):
-            page_num = page_idx + 1
-            
-            # Since OCRProcessor uses images, we get width/height from the images
-            img = processor._images[page_idx]
-            width, height = img.size
-            
-            page_lines = []
-            for line in result['lines']:
-                if line['page'] == page_num:
-                    # Convert [x, y, w, h] to [x0, y0, x1, y1] for consistency with pdfplumber style if needed
-                    # but typically [x, y, w, h] is fine if the frontend expects it.
-                    # Frontend in App.tsx seems to expect [x0, y0, x1, y1] or similar?
-                    # Let's provide [x, y, x+w, y+h] just in case.
-                    bbox = line['bbox']
-                    page_lines.append({
-                        "text": line['text'],
-                        "bbox": [bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]]
+            with pdfplumber.open(tmp_path) as pdf:
+                for page_idx, page in enumerate(pdf.pages):
+                    words = page.extract_words()
+                    if words:
+                        has_extracted_text = True
+                    
+                    lines_by_top = {}
+                    for w in words:
+                        top_bucket = round(w['top'] / 3) * 3
+                        if top_bucket not in lines_by_top:
+                            lines_by_top[top_bucket] = []
+                        lines_by_top[top_bucket].append(w)
+                    
+                    page_lines = []
+                    for top in sorted(lines_by_top.keys()):
+                        line_words = sorted(lines_by_top[top], key=lambda w: w['x0'])
+                        text = " ".join(w['text'] for w in line_words)
+                        if text.strip():
+                            x0 = min(w['x0'] for w in line_words)
+                            top_val = min(w['top'] for w in line_words)
+                            x1 = max(w['x1'] for w in line_words)
+                            bottom_val = max(w['bottom'] for w in line_words)
+                            page_lines.append({
+                                "text": text,
+                                "bbox": [x0, top_val, x1, bottom_val]
+                            })
+                    
+                    pages_data.append({
+                        "page_index": page_idx,
+                        "width": float(page.width),
+                        "height": float(page.height),
+                        "lines": page_lines,
+                        "tables": []
                     })
             
-            pages_data.append({
-                "page_index": page_idx,
-                "width": float(width),
-                "height": float(height),
-                "lines": page_lines,
-                "tables": [] # Simple OCR doesn't always handle tables well, adding empty for now
-            })
+            if has_extracted_text:
+                return {"pages": pages_data}
+        
+        # Fallback to Gemini for images or scanned PDFs
+        from google import genai
+        import os
+        
+        api_key = os.getenv("API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise Exception("API key for Gemini is missing.")
             
-        return {"pages": pages_data}
+        client = genai.Client(api_key=api_key)
+        uploaded_file = client.files.upload(file=tmp_path)
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=[uploaded_file, "Extract all the text exactly as written. Separate different lines with newlines."],
+            config=genai.types.GenerateContentConfig()
+        )
+        
+        text_lines = response.text.split("\n")
+        page_lines = []
+        for line in text_lines:
+            if line.strip():
+                page_lines.append({
+                    "text": line.strip(),
+                    "bbox": [0, 0, 100, 10]
+                })
+                
+        return {"pages": [{
+            "page_index": 0,
+            "width": 1000,
+            "height": 1000,
+            "lines": page_lines,
+            "tables": []
+        }]}
         
     finally:
         # Clean up temporary file
