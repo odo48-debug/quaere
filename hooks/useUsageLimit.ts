@@ -53,24 +53,32 @@ export const useUsageLimit = () => {
     if (!isSignedIn || !user) return;
 
     const storageKey = `${STORAGE_KEY}_${user.id}`;
+    const currentMonth = getCurrentMonth();
 
-    setUsage(prev => {
-      const newUsage = {
-        pagesProcessedThisMonth: prev.pagesProcessedThisMonth + pageCount,
-        lastResetDate: prev.lastResetDate,
-      };
-      localStorage.setItem(storageKey, JSON.stringify(newUsage));
-      window.dispatchEvent(new Event('usageUpdated'));
-      return newUsage;
-    });
+    let currentCount = 0;
+    const savedUsage = localStorage.getItem(storageKey);
+    if (savedUsage) {
+      const parsed = JSON.parse(savedUsage) as UsageData;
+      if (parsed.lastResetDate === currentMonth) {
+        currentCount = parsed.pagesProcessedThisMonth || 0;
+      }
+    }
+
+    const newUsage = {
+      pagesProcessedThisMonth: currentCount + pageCount,
+      lastResetDate: currentMonth,
+    };
+
+    localStorage.setItem(storageKey, JSON.stringify(newUsage));
+    window.dispatchEvent(new Event('usageUpdated'));
   };
 
   const canProcessPages = (pageCount: number): boolean => {
     if (!isSignedIn) return false;
-    // During free trial, allow processing pages
-    if (isFreeTrialActive) return true;
-    // After trial, only paid users can continue
-    if (!isPaidUser) return false;
+    // If not paid and trial is over, no pages allowed
+    if (!isPaidUser && !isFreeTrialActive) return false;
+
+    // Check if the total pages (current + requested) exceeds the plan limit
     return (usage.pagesProcessedThisMonth + pageCount) <= limits.pagesPerMonth;
   };
 
