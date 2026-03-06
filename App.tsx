@@ -991,8 +991,9 @@ Return a JSON object with a "columns" array.`;
   };
 
   // Extracts text from a single file, trying PDF.js first then falling back to the OCR backend
-  const extractTextFromFile = async (file: File): Promise<string> => {
+  const extractTextFromFile = async (file: File): Promise<{ text: string, pages: number }> => {
     const isImage = file.type.startsWith('image/');
+    let pageCount = 1;
 
     if (!isImage) {
       // Try PDF.js text extraction first
@@ -1000,13 +1001,14 @@ Return a JSON object with a "columns" array.`;
         const arrayBuffer = await file.arrayBuffer();
         const typedArray = new Uint8Array(arrayBuffer);
         const pdf = await (window as any).pdfjsLib.getDocument(typedArray).promise;
+        pageCount = pdf.numPages;
         let text = '';
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
           text += content.items.map((item: any) => item.str).join(' ') + '\n';
         }
-        if (text.trim().length >= 50) return text.trim();
+        if (text.trim().length >= 50) return { text: text.trim(), pages: pageCount };
       } catch {
         // silently fall through to OCR
       }
@@ -1015,10 +1017,13 @@ Return a JSON object with a "columns" array.`;
     // Scanned PDF or image → OCR backend
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch('http://localhost:8000/process', { method: 'POST', body: formData });
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    const response = await fetch(`${apiUrl}/process`, { method: 'POST', body: formData });
     if (!response.ok) throw new Error('OCR backend error');
     const data = await response.json();
-    return data.pages?.map((p: any) => p.lines?.map((l: any) => l.text).join(' ')).join('\n') || '';
+    const text = data.pages?.map((p: any) => p.lines?.map((l: any) => l.text).join(' ')).join('\n') || '';
+    if (data.pages && data.pages.length > 0) pageCount = data.pages.length;
+    return { text, pages: pageCount };
   };
 
   const extractDataFromSource = async (source: ExtractSource) => {
@@ -1051,25 +1056,36 @@ Return a JSON object with a "columns" array.`;
       for (const file of source.files) {
         filesToProcess.push({
           label: file.name,
-          getText: () => extractTextFromFile(file),
+          getText: async () => {
+            const res = await extractTextFromFile(file);
+            incrementPageCount(res.pages);
+            return res.text;
+          },
         });
       }
     } else if (source.type === 'url') {
       filesToProcess.push({
         label: source.url,
         getText: async () => {
-          const response = await fetch('http://localhost:8000/fetch-url', {
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+          const response = await fetch(`${apiUrl}/fetch-url`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: source.url }),
           });
           if (!response.ok) throw new Error('Failed to fetch URL content');
           const data = await response.json();
+          incrementPageCount(1);
           return data.text || '';
         },
       });
     } else {
-      filesToProcess.push({ label: 'Text input', getText: async () => source.text });
+      filesToProcess.push({
+        label: 'Text input', getText: async () => {
+          incrementPageCount(1);
+          return source.text;
+        }
+      });
     }
 
     setIsExtracting(true);
