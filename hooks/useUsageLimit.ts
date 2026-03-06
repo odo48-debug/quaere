@@ -24,34 +24,45 @@ export const useUsageLimit = () => {
     if (!isSignedIn || !user) return;
 
     const storageKey = `${STORAGE_KEY}_${user.id}`;
-    const savedUsage = localStorage.getItem(storageKey);
 
-    if (savedUsage) {
-      const parsed = JSON.parse(savedUsage) as UsageData;
-      const currentMonth = getCurrentMonth();
+    const loadUsage = () => {
+      const savedUsage = localStorage.getItem(storageKey);
+      if (savedUsage) {
+        const parsed = JSON.parse(savedUsage) as UsageData;
+        const currentMonth = getCurrentMonth();
 
-      // Reset if it's a new month
-      if (parsed.lastResetDate !== currentMonth) {
-        const resetUsage = { pagesProcessedThisMonth: 0, lastResetDate: currentMonth };
-        setUsage(resetUsage);
-        localStorage.setItem(storageKey, JSON.stringify(resetUsage));
-      } else {
-        setUsage(parsed);
+        // Reset if it's a new month
+        if (parsed.lastResetDate !== currentMonth) {
+          const resetUsage = { pagesProcessedThisMonth: 0, lastResetDate: currentMonth };
+          setUsage(resetUsage);
+          localStorage.setItem(storageKey, JSON.stringify(resetUsage));
+        } else {
+          setUsage(parsed);
+        }
       }
-    }
+    };
+
+    loadUsage();
+
+    // Sync across different instances of this hook (e.g. App.tsx and AppSidebar.tsx)
+    window.addEventListener('usageUpdated', loadUsage);
+    return () => window.removeEventListener('usageUpdated', loadUsage);
   }, [isSignedIn, user]);
 
   const incrementPageCount = (pageCount: number) => {
     if (!isSignedIn || !user) return;
 
     const storageKey = `${STORAGE_KEY}_${user.id}`;
-    const newUsage = {
-      pagesProcessedThisMonth: usage.pagesProcessedThisMonth + pageCount,
-      lastResetDate: usage.lastResetDate,
-    };
 
-    setUsage(newUsage);
-    localStorage.setItem(storageKey, JSON.stringify(newUsage));
+    setUsage(prev => {
+      const newUsage = {
+        pagesProcessedThisMonth: prev.pagesProcessedThisMonth + pageCount,
+        lastResetDate: prev.lastResetDate,
+      };
+      localStorage.setItem(storageKey, JSON.stringify(newUsage));
+      window.dispatchEvent(new Event('usageUpdated'));
+      return newUsage;
+    });
   };
 
   const canProcessPages = (pageCount: number): boolean => {
