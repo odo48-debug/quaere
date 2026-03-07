@@ -1260,7 +1260,8 @@ ${JSON.stringify(dynamicSchema)}
         itemsToProcess.push({
           label: source.url,
           getText: async () => {
-            const res = await fetch('http://localhost:8000/fetch-url', {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/fetch-url`, {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ url: source.url }),
             });
