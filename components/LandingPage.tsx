@@ -162,6 +162,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onShowDo
         <p className="mt-6 text-xs text-gray-600">No data leaves your browser</p>
       </div>
 
+      {/* VIDEO DEMO */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 transition-all duration-1000 transform translate-y-0 opacity-100">
+        <div className="relative group bg-gray-900/50 p-2 sm:p-4 rounded-3xl border border-gray-800/80 shadow-[0_0_50px_-12px_rgba(59,130,246,0.3)] hover:border-blue-500/30 transition-all duration-500">
+          <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black">
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/mWQnYvrrs5s?autoplay=0&rel=0&modestbranding=1"
+              title="Quaere Demo Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            ></iframe>
+          </div>
+
+          {/* Decorative elements */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-all duration-700"></div>
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-500/20 transition-all duration-700"></div>
+        </div>
+      </div>
+
       {/* Social proof / document types strip */}
       <div className="border-y border-gray-800 bg-gray-900/40 py-6 overflow-hidden">
         <div className="flex gap-6 animate-[scroll_20s_linear_infinite] whitespace-nowrap w-max">
