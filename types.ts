@@ -1,54 +1,4 @@
 
-import { Type } from '@google/genai';
-
-export interface ChatMessage {
-  role: 'user' | 'model';
-  content: string;
-  citations?: string[];
-}
-
-export interface ProcessingState {
-  isProcessing: boolean;
-  status: string;
-  progress: number;
-}
-
-export interface TextItem {
-  str: string;
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
-
-export interface PageData {
-  pageIndex: number;
-  width: number;
-  height: number;
-  imageDataUrl: string;
-  textContent: TextItem[];
-}
-
-export interface HighlightRect {
-  pageIndex: number;
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  sourceCitation: string; // The original citation string this rect belongs to
-}
-
-export interface ContentViewHandle {
-  scrollToHighlight: (pageIndex: number) => void;
-}
-
-export interface Annotation {
-  pageIndex: number;
-  x: number; // Relative coordinate (0-1)
-  y: number; // Relative coordinate (0-1)
-  text: string;
-}
-
 export type ColumnType = 'string' | 'number' | 'date' | 'json' | 'boolean';
 
 export interface DatabaseColumn {
@@ -59,14 +9,17 @@ export interface DatabaseColumn {
 }
 
 export interface DatabaseRow {
-  id: string;
-  autoNumber: string | number;
-  createdAt: string;
-  [columnId: string]: string | number;
+  _id: number;
+  [columnId: string]: any;
 }
 
-export interface LocalDatabase {
-  columns: DatabaseColumn[];
-  rows: DatabaseRow[];
-  nextAutoNumber: number;
+export interface TableMeta {
+  name: string;
+  display_name: string;
+  created_at: string;
+}
+
+export interface DatabaseInfo {
+  id: string;
+  name: string;
 }

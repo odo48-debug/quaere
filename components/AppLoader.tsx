@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ClerkProvider } from '@clerk/clerk-react';
 import App from '../App';
 import { PGliteWorker } from '@electric-sql/pglite/worker';
 import { PGliteProvider } from '@electric-sql/pglite-react';
 import { live } from '@electric-sql/pglite/live';
-
-const PUBLISHABLE_KEY = process.env.VITE_CLERK_PUBLISHABLE_KEY;
-
-if (!PUBLISHABLE_KEY) {
-    throw new Error("Missing Clerk Publishable Key");
-}
 
 // Use a stable singleton promise that survives HMR reloads and React StrictMode double-mounts
 const PGLITE_SINGLETON_KEY = '__PGLITE_WORKER_PROMISE__';
@@ -24,7 +17,7 @@ function getOrCreatePGlite() {
     if (global[singletonKey]) return global[singletonKey];
 
     global[singletonKey] = (async () => {
-        console.log(`[PGlite] Initializing instance for database: ${activeDb}...`);
+        console.log(`[PGlite] Initializing Multi-Tab Worker for: ${activeDb}...`);
 
         // Create the worker
         const worker = new Worker(
@@ -32,11 +25,22 @@ function getOrCreatePGlite() {
             { type: 'module' }
         );
 
-        const instance = await PGliteWorker.create(worker, {
+        // Constructor pattern for better leader election support
+        const instance = new PGliteWorker(worker, {
             // Map 'default' to the legacy path to preserve existing data
             dataDir: activeDb === 'default' ? 'idb://quaere-db-v17' : `idb://quaere-db-${activeDb}-v17`,
-            extensions: { live }
+            extensions: { live },
+            relaxedDurability: true
         });
+
+        // Monitor leadership
+        console.log(`[PGlite] Initial leader status: ${instance.isLeader ? 'LEADER' : 'FOLLOWER'}`);
+        instance.onLeaderChange(() => {
+            console.log(`[PGlite] Leadership changed: This tab is now a ${instance.isLeader ? 'LEADER' : 'FOLLOWER'}`);
+        });
+
+        // Wait for ready
+        await instance.ready;
 
         console.log(`[PGlite] Worker ready for ${activeDb}, setting up system tables...`);
         await instance.exec(`
@@ -162,10 +166,8 @@ export function AppLoader() {
     }
 
     return (
-        <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-            <PGliteProvider db={db}>
-                <App />
-            </PGliteProvider>
-        </ClerkProvider>
+        <PGliteProvider db={db}>
+            <App />
+        </PGliteProvider>
     );
 }

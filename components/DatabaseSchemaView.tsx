@@ -95,8 +95,7 @@ export const DatabaseSchemaView: React.FC<{
     activeTable: string | null;
     setActiveTable: (name: string | null) => void;
     tables: TableMeta[];
-    onToggleCharts?: () => void;
-}> = ({ activeTable, setActiveTable, tables, onToggleCharts }) => {
+}> = ({ activeTable, setActiveTable, tables }) => {
     const db = usePGlite() as any;
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
@@ -199,16 +198,6 @@ export const DatabaseSchemaView: React.FC<{
                         </div>
                     </div>
                 </div>
-
-                {onToggleCharts && (
-                    <button
-                        onClick={onToggleCharts}
-                        className="bg-white/90 backdrop-blur-sm border border-slate-200 px-3 py-1.5 rounded-xl shadow-xl flex items-center gap-2 hover:bg-slate-50 transition-colors text-slate-600 hover:text-indigo-600"
-                    >
-                        <IconChartBar className="w-3.5 h-3.5" />
-                        <span className="text-[11px] font-bold uppercase">Switch to Charts</span>
-                    </button>
-                )}
             </div>
 
             <div className="flex-1">

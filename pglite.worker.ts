@@ -4,14 +4,13 @@ import { worker } from '@electric-sql/pglite/worker';
 
 worker({
     async init(options) {
-        // Create the PGlite instance within the worker
-        const db = await PGlite.create({
+        // We can pass options from the main thread or define defaults here
+        return await PGlite.create({
             ...options,
             extensions: {
                 ...options.extensions,
                 live,
             },
         });
-        return db;
     },
 });
