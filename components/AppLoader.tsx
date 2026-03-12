@@ -3,6 +3,10 @@ import App from '../App';
 import { PGliteWorker } from '@electric-sql/pglite/worker';
 import { PGliteProvider } from '@electric-sql/pglite-react';
 import { live } from '@electric-sql/pglite/live';
+import { ClerkProvider, SignedIn, SignedOut } from '@clerk/clerk-react';
+import LandingPage from './LandingPage';
+
+const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 
 // Use a stable singleton promise that survives HMR reloads and React StrictMode double-mounts
 const PGLITE_SINGLETON_KEY = '__PGLITE_WORKER_PROMISE__';
@@ -51,6 +55,43 @@ function getOrCreatePGlite() {
             );
         `);
 
+        // Activate extensions
+        await instance.exec(`CREATE EXTENSION IF NOT EXISTS vector;`);
+
+        // Brain memory tables (embeddings are optional — column is nullable)
+        await instance.exec(`
+            CREATE TABLE IF NOT EXISTS brain_episodic (
+                id SERIAL PRIMARY KEY,
+                content TEXT NOT NULL,
+                source TEXT,
+                tags TEXT[],
+                embedding vector(768),
+                created_at TIMESTAMPTZ DEFAULT now()
+            );
+            CREATE INDEX IF NOT EXISTS brain_episodic_emb_idx
+                ON brain_episodic USING hnsw (embedding vector_cosine_ops)
+                WHERE embedding IS NOT NULL;
+
+            CREATE TABLE IF NOT EXISTS brain_semantic (
+                id SERIAL PRIMARY KEY,
+                subject TEXT NOT NULL,
+                predicate TEXT NOT NULL,
+                object TEXT NOT NULL,
+                confidence REAL DEFAULT 1.0,
+                embedding vector(768),
+                updated_at TIMESTAMPTZ DEFAULT now()
+            );
+
+            CREATE TABLE IF NOT EXISTS brain_procedural (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                steps JSONB,
+                embedding vector(768),
+                updated_at TIMESTAMPTZ DEFAULT now()
+            );
+        `);
+
         // Migration: ensure every registered table has _id SERIAL (required by live queries)
         const userTables = await instance.query<{ name: string }>(
             `SELECT name FROM quaere_tables`
@@ -88,7 +129,7 @@ async function wipeDatabaseAndReload() {
     window.location.reload();
 }
 
-export function AppLoader() {
+function AppLoaderInner() {
     const [db, setDb] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [status, setStatus] = useState('Booting PostgreSQL worker...');
@@ -169,5 +210,24 @@ export function AppLoader() {
         <PGliteProvider db={db}>
             <App />
         </PGliteProvider>
+    );
+}
+
+// ---- Root with optional Clerk wrapper ------------------------------------
+export function AppLoader() {
+    // If no Clerk key is provided (e.g. open-source local dev), skip auth entirely
+    if (!CLERK_KEY) {
+        return <AppLoaderInner />;
+    }
+
+    return (
+        <ClerkProvider publishableKey={CLERK_KEY}>
+            <SignedOut>
+                <LandingPage />
+            </SignedOut>
+            <SignedIn>
+                <AppLoaderInner />
+            </SignedIn>
+        </ClerkProvider>
     );
 }
