@@ -9,6 +9,7 @@ import { IconLayout, IconColumns, IconX, IconSparkles } from './components/icons
 import { usePGlite, useLiveQuery } from './lib/pgliteHooks';
 import { createTable } from './lib/pglite';
 import { createAgentBridge } from './lib/agentBridge';
+import { SettingsView } from './components/SettingsView';
 
 interface AppProps {
   isPro: boolean;
@@ -153,6 +154,10 @@ const App: React.FC<AppProps> = ({ isPro, getClerkToken }) => {
             /* Full docs panel — no standard header needed */
             <div className="flex-1 overflow-hidden">
               <DocsView />
+            </div>
+          ) : activeTab === 'settings' ? (
+            <div className="flex-1 overflow-y-auto">
+              <SettingsView />
             </div>
           ) : (
             <>
