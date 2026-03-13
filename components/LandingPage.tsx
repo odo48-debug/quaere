@@ -3,9 +3,13 @@ import React, { useState } from 'react';
 import { SignInButton, SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { DocsView } from './DocsView';
 import { IconX } from './icons';
+import { TermsOfService } from './TermsOfService';
+import { PrivacyPolicy } from './PrivacyPolicy';
 
 const LandingPage: React.FC = () => {
     const [showFullDocs, setShowFullDocs] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
+    const [showPrivacy, setShowPrivacy] = useState(false);
 
     if (showFullDocs) {
         return (
@@ -27,6 +31,14 @@ const LandingPage: React.FC = () => {
                 </div>
             </div>
         );
+    }
+
+    if (showTerms) {
+        return <TermsOfService onClose={() => setShowTerms(false)} />;
+    }
+
+    if (showPrivacy) {
+        return <PrivacyPolicy onClose={() => setShowPrivacy(false)} />;
     }
 
     return (
@@ -180,14 +192,14 @@ const LandingPage: React.FC = () => {
                     {[
                         {
                             plan: 'Free',
-                            price: '€0',
+                            price: '$0',
                             features: ['10,000 memories', 'Standard keyword search', 'Unlimited local databases', 'Agent Bridge access'],
                             cta: 'Start Free',
                             highlight: false,
                         },
                         {
                             plan: 'Pro',
-                            price: '€9/mo',
+                            price: '$9/mo',
                             features: [
                                 'Unlimited memories',
                                 'AI-Powered Semantic Search',
@@ -229,8 +241,26 @@ const LandingPage: React.FC = () => {
                 </div>
             </section>
 
-            <footer className="border-t border-white/10 py-6 text-center text-xs text-slate-600 uppercase tracking-widest">
-                Quaere — Local-First, Privacy by Default
+            <footer className="border-t border-white/10 py-12 px-8">
+                <div className="max-w-5xl mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="text-[10px] text-slate-600 uppercase tracking-widest">
+                        &copy; 2026 Quaere — Local-First Memory
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <button
+                            onClick={() => setShowTerms(true)}
+                            className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+                        >
+                            Terms of Service
+                        </button>
+                        <button
+                            onClick={() => setShowPrivacy(true)}
+                            className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors"
+                        >
+                            Privacy Policy
+                        </button>
+                    </div>
+                </div>
             </footer>
         </div>
     );
