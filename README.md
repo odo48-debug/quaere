@@ -1,10 +1,10 @@
-# 🧠 Quaere Engine: The Agent Brain
+# 🧠 Quaere: The Agent Brain
 
 **A local-first, vector-powered memory layer for AI agents.**
 
-Quaere Engine is a specialized, open-source storage solution designed to acts as the "long-term memory" for AI agents. It provides a full **PostgreSQL 17** engine running entirely in your browser using **PGlite**, enhanced with **pgvector** for semantic search and **Google Gemini** for automatic embedding generation.
+Quaere is a specialized, open-source storage solution designed to acts as the "long-term memory" for AI agents. It provides a full **PostgreSQL 17** engine running entirely in your browser using **PGlite**, enhanced with **pgvector** for semantic search and **Google Gemini** for automatic embedding generation.
 
-![Quaere Engine Banner](https://images.unsplash.com/photo-1620712943543-bcc4628c6757?auto=format&fit=crop&q=80&w=1200&h=400)
+![Quaere Banner](https://images.unsplash.com/photo-1620712943543-bcc4628c6757?auto=format&fit=crop&q=80&w=1200&h=400)
 
 ## 🚀 Why Quaere?
 
@@ -85,7 +85,7 @@ brain.onmessage = (e) => {
 
 ## 🌐 Self-Hosting & Open Source
 
-Quaere Engine is **100% Open Source**. You can run the entire "Pro" experience for free on your own hardware. 
+Quaere is **100% Open Source**. You can run the entire "Pro" experience for free on your own hardware. 
 
 ### How to enable "Pro" features locally:
 To use the **Brain Control Panel** and **Automatic Embeddings** without a subscription:

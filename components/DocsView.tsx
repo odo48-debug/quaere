@@ -36,7 +36,7 @@ const WhatSection = () => (
             <div className="text-4xl mb-3">🧠</div>
             <h1 className="text-xl font-black text-white mb-2">Give your AI Agent a Brain</h1>
             <p className="text-slate-400 text-sm leading-relaxed">
-                Quaere Engine is a <strong className="text-white">local-first, vector-powered PostgreSQL database</strong> that runs entirely in your browser — no servers, no cloud, no privacy concerns. It's the perfect persistent memory layer for AI agents like <strong className="text-white">OpenClaw</strong>.
+                Quaere is a <strong className="text-white">local-first, vector-powered PostgreSQL database</strong> that runs entirely in your browser — no servers, no cloud, no privacy concerns. It's the perfect persistent memory layer for AI agents like <strong className="text-white">OpenClaw</strong>.
             </p>
         </div>
 

@@ -157,7 +157,7 @@ const App: React.FC = () => {
               {/* Workspace Header */}
               <header className="h-14 border-b border-gray-100 flex items-center justify-between px-6 bg-white shrink-0">
                 <div className="flex items-center gap-4">
-                  <h1 className="text-lg font-black tracking-tighter uppercase italic mr-4">Quaere Engine</h1>
+                  <h1 className="text-lg font-black tracking-tighter uppercase italic mr-4">Quaere</h1>
                   <div className="h-4 w-[1px] bg-gray-200"></div>
                   <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-tight">
                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>

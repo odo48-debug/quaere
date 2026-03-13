@@ -39,7 +39,7 @@ const LandingPage: React.FC = () => {
                             <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                         </svg>
                     </div>
-                    <span className="font-black text-lg uppercase italic tracking-tighter">Quaere Engine</span>
+                    <span className="font-black text-lg uppercase italic tracking-tighter">Quaere</span>
                 </div>
                 <div className="flex items-center gap-6">
                     <a href="#features" className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Features</a>
@@ -69,7 +69,7 @@ const LandingPage: React.FC = () => {
                     a Brain
                 </h1>
                 <p className="text-slate-400 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-                    Quaere Engine is a persistent, vector-powered PostgreSQL database that runs entirely in your browser — the perfect memory layer for AI agents like OpenClaw.
+                    Quaere is a persistent, vector-powered PostgreSQL database that runs entirely in your browser — the perfect memory layer for AI agents like OpenClaw.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <SignInButton mode="modal">
@@ -230,7 +230,7 @@ const LandingPage: React.FC = () => {
             </section>
 
             <footer className="border-t border-white/10 py-6 text-center text-xs text-slate-600 uppercase tracking-widest">
-                Quaere Engine — Local-First, Privacy by Default
+                Quaere — Local-First, Privacy by Default
             </footer>
         </div>
     );
