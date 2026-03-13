@@ -103,10 +103,13 @@ export const createAgentBridge = (db: PGlite, options: { isPro: boolean, getCler
 
                     if (memType === 'episodic') {
                         if (!msg.content) throw new Error('content is required for episodic memory');
+
                         const embStr = effectiveEmbedding ? JSON.stringify(effectiveEmbedding) : null;
+                        console.log(`[Bridge] Storing episodic memory (${effectiveEmbedding ? 'PRO: with embedding' : 'FREE: text only'})`);
+
                         const res = await db.query(
                             `INSERT INTO brain_episodic (content, source, tags, embedding)
-               VALUES ($1, $2, $3, $4::vector) RETURNING id`,
+                             VALUES ($1, $2, $3, $4::vector) RETURNING id`,
                             [msg.content, msg.source || null, msg.tags || null, embStr]
                         );
                         channel.postMessage({ type: 'SQL_RESULT', requestId: id, data: res });

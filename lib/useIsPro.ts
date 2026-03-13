@@ -11,14 +11,18 @@ export function useIsPro() {
     const publicMetadata = user.publicMetadata as any;
 
     // Check for the specific plan ID or status
-    const hasProPlan = publicMetadata?.planId === PRO_PLAN_ID ||
+    const hasProPlan =
+        publicMetadata?.plan === 'pro' ||
+        publicMetadata?.planId === PRO_PLAN_ID ||
         publicMetadata?.subscriptionStatus === 'active' ||
-        publicMetadata?.plan === 'pro';
+        publicMetadata?.subscription === 'active' ||
+        publicMetadata?.stripe_subscription_status === 'active';
 
     console.log("[useIsPro] Detection:", {
         hasProPlan,
         userPlanId: publicMetadata?.planId,
         plan: publicMetadata?.plan,
+        subscriptionStatus: publicMetadata?.subscriptionStatus || publicMetadata?.subscription,
         metadata: publicMetadata
     });
 
