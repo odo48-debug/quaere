@@ -3,8 +3,9 @@ import App from '../App';
 import { PGliteWorker } from '@electric-sql/pglite/worker';
 import { PGliteProvider } from '@electric-sql/pglite-react';
 import { live } from '@electric-sql/pglite/live';
-import { ClerkProvider, SignedIn, SignedOut } from '@clerk/clerk-react';
+import { ClerkProvider, SignedIn, SignedOut, useAuth } from '@clerk/clerk-react';
 import LandingPage from './LandingPage';
+import { useIsPro } from '../lib/useIsPro';
 
 const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 
@@ -134,7 +135,7 @@ async function wipeDatabaseAndReload() {
     window.location.reload();
 }
 
-function AppLoaderInner() {
+function AppLoaderInner({ isPro, getClerkToken }: { isPro: boolean, getClerkToken?: () => Promise<string | null> }) {
     const [db, setDb] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [status, setStatus] = useState('Booting PostgreSQL worker...');
@@ -213,9 +214,15 @@ function AppLoaderInner() {
 
     return (
         <PGliteProvider db={db}>
-            <App />
+            <App isPro={isPro} getClerkToken={getClerkToken} />
         </PGliteProvider>
     );
+}
+
+function AuthenticatedApp() {
+    const { getToken } = useAuth();
+    const isPro = useIsPro();
+    return <AppLoaderInner isPro={isPro} getClerkToken={getToken} />;
 }
 
 // ---- Root with optional Clerk wrapper ------------------------------------
@@ -225,7 +232,7 @@ export function AppLoader() {
     // If no Clerk key is provided or it's a placeholder, skip auth entirely
     if (!clerkKey || clerkKey.includes('your_') || clerkKey.includes('pk_test_...')) {
         console.log('[AppLoader] Running in Open-Source mode (No Auth)');
-        return <AppLoaderInner />;
+        return <AppLoaderInner isPro={true} />;
     }
 
     console.log('[AppLoader] Running in SaaS mode (Clerk Auth active)');
@@ -235,7 +242,7 @@ export function AppLoader() {
                 <LandingPage />
             </SignedOut>
             <SignedIn>
-                <AppLoaderInner />
+                <AuthenticatedApp />
             </SignedIn>
         </ClerkProvider>
     );

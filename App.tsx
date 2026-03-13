@@ -1,6 +1,5 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { useAuth } from '@clerk/clerk-react';
 import { DatabaseView, DatabaseViewRef } from './components/DatabaseView';
 import { AppSidebar } from './components/AppSidebar';
 import { DatabaseSchemaView } from './components/DatabaseSchemaView';
@@ -10,10 +9,13 @@ import { IconLayout, IconColumns, IconX, IconSparkles } from './components/icons
 import { usePGlite, useLiveQuery } from './lib/pgliteHooks';
 import { createTable } from './lib/pglite';
 import { createAgentBridge } from './lib/agentBridge';
-import { useIsPro } from './lib/useIsPro';
 
-const App: React.FC = () => {
-  const { getToken } = useAuth();
+interface AppProps {
+  isPro: boolean;
+  getClerkToken?: () => Promise<string | null>;
+}
+
+const App: React.FC<AppProps> = ({ isPro, getClerkToken }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'database' | 'api' | 'settings' | 'docs'>('database');
   const [workspaceView, setWorkspaceView] = useState<'classic' | 'visual'>('classic');
@@ -34,8 +36,6 @@ const App: React.FC = () => {
   // Multi-tab leader status
   const [isDbLeader, setIsDbLeader] = useState(db?.isLeader || false);
 
-  const isPro = useIsPro();
-
   useEffect(() => {
     if (!db) return;
     setIsDbLeader(db.isLeader);
@@ -44,7 +44,7 @@ const App: React.FC = () => {
     });
 
     // Initialize Agent Bridge with subscription status
-    const closeBridge = createAgentBridge(db, { isPro, getClerkToken: getToken });
+    const closeBridge = createAgentBridge(db, { isPro, getClerkToken });
 
     return () => {
       if (typeof unsubs === 'function') unsubs();
