@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from '../lib/pgliteHooks';
-import { UserButton } from '@clerk/clerk-react';
+import { UserButton, SignedIn } from '@clerk/clerk-react';
 
 interface AppSidebarProps {
     activeTab: 'database' | 'api' | 'settings' | 'docs';
@@ -20,7 +20,6 @@ interface AppSidebarProps {
 }
 
 const clerkKey = (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
-const DEFAULT_AUTH_ENABLED = clerkKey && !clerkKey.includes('your_') && !clerkKey.includes('pk_test_...');
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
     activeTableId,
@@ -34,8 +33,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     onRenameDatabase,
     isAuthEnabled,
 }) => {
-    // Determine if we should show auth components
-    const showAuth = isAuthEnabled !== undefined ? isAuthEnabled : DEFAULT_AUTH_ENABLED;
     // Fetch schema for all tables
     const schemasQuery = useLiveQuery<{ table_name: string; column_name: string; data_type: string }>(
         `SELECT c.table_name, c.column_name, c.data_type 
@@ -232,7 +229,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Local Instance</span>
                     </div>
-                    {showAuth && <UserButton afterSignOutUrl="/" />}
+                    <SignedIn>
+                        <UserButton afterSignOutUrl="/" />
+                    </SignedIn>
                 </div>
             </div>
         </div>
