@@ -1,9 +1,8 @@
 import { GoogleGenerativeAI, TaskType } from "@google/generative-ai";
 import { createClerkClient, verifyToken } from '@clerk/backend';
 
-export const config = {
-    runtime: 'edge', // Using Edge Runtime for maximum performance
-};
+// Removed Edge runtime as it conflicts with Clerk's crypto dependencies.
+// Running as a standard Node.js serverless function.
 
 const secretKey = process.env.CLERK_SECRET_KEY;
 const publishableKey = process.env.VITE_CLERK_PUBLISHABLE_KEY;
