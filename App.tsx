@@ -1,14 +1,19 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import { DatabaseView, DatabaseViewRef } from './components/DatabaseView';
 import { AppSidebar } from './components/AppSidebar';
 import { DatabaseSchemaView } from './components/DatabaseSchemaView';
+import { BrainView } from './components/BrainView';
+import { DocsView } from './components/DocsView';
 import { IconLayout, IconColumns, IconX, IconSparkles } from './components/icons';
 import { usePGlite, useLiveQuery } from './lib/pgliteHooks';
 import { createTable } from './lib/pglite';
 import { createAgentBridge } from './lib/agentBridge';
+import { useIsPro } from './lib/useIsPro';
 
 const App: React.FC = () => {
+  const { getToken } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'database' | 'api' | 'settings' | 'docs'>('database');
   const [workspaceView, setWorkspaceView] = useState<'classic' | 'visual'>('classic');
@@ -29,6 +34,8 @@ const App: React.FC = () => {
   // Multi-tab leader status
   const [isDbLeader, setIsDbLeader] = useState(db?.isLeader || false);
 
+  const isPro = useIsPro();
+
   useEffect(() => {
     if (!db) return;
     setIsDbLeader(db.isLeader);
@@ -36,14 +43,14 @@ const App: React.FC = () => {
       setIsDbLeader(db.isLeader);
     });
 
-    // Initialize Agent Bridge
-    const closeBridge = createAgentBridge(db);
+    // Initialize Agent Bridge with subscription status
+    const closeBridge = createAgentBridge(db, { isPro, getClerkToken: getToken });
 
     return () => {
       if (typeof unsubs === 'function') unsubs();
       closeBridge();
     };
-  }, [db]);
+  }, [db, isPro]);
 
   const handleCreateDatabase = useCallback((name: string) => {
     const id = name.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
@@ -116,6 +123,9 @@ const App: React.FC = () => {
 
   const [activeRowId, setActiveRowId] = useState<string | null>(null);
 
+  const isBrainTable = activeTable?.startsWith('brain_');
+  const [brainViewMode, setBrainViewMode] = useState<'brain' | 'table'>('brain');
+
   return (
     <div className="h-screen flex bg-[#f8fafc] text-slate-900 antialiased overflow-hidden">
       <div className="flex w-full h-full">
@@ -137,79 +147,115 @@ const App: React.FC = () => {
 
         {/* COLUMN 2: Workspace (Center) */}
         <main className="flex-grow flex flex-col h-full bg-white overflow-hidden">
-          {/* Workspace Header */}
-          <header className="h-14 border-b border-gray-100 flex items-center justify-between px-6 bg-white shrink-0">
-            <div className="flex items-center gap-4">
-              <h1 className="text-lg font-black tracking-tighter uppercase italic mr-4">Quaere Engine</h1>
-              <div className="h-4 w-[1px] bg-gray-200"></div>
-              <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-tight">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                {activeTable || 'No Table Selected'}
-              </h2>
-              <div className="h-4 w-[1px] bg-gray-200"></div>
-
-              {/* DB Leader Badge */}
-              <div
-                className={`flex items-center gap-2 px-2.5 py-1 rounded-full border text-[10px] font-bold tracking-tight transition-all duration-500 ${isDbLeader
-                  ? 'bg-green-50 border-green-200 text-green-700'
-                  : 'bg-amber-50 border-amber-200 text-amber-700'
-                  }`}
-                title={isDbLeader ? "This tab is directly connected to the database" : "This tab is proxying queries through a leader tab"}
-              >
-                <div className={`w-1.5 h-1.5 rounded-full ${isDbLeader ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.4)]' : 'bg-amber-500'} transition-colors duration-500`}></div>
-                {isDbLeader ? 'LEADER' : 'FOLLOWER'}
-              </div>
-
-              <div className="h-4 w-[1px] bg-gray-200"></div>
-              <div className="flex bg-gray-100 p-0.5 rounded-lg">
-                <button
-                  onClick={() => setWorkspaceView('classic')}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold transition-all ${workspaceView === 'classic' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  <IconColumns className="w-3.5 h-3.5" />
-                  Classic
-                </button>
-                <button
-                  onClick={() => setWorkspaceView('visual')}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold transition-all ${workspaceView === 'visual' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  <IconLayout className="w-3.5 h-3.5" />
-                  Visual
-                </button>
-              </div>
+          {activeTab === 'docs' ? (
+            /* Full docs panel — no standard header needed */
+            <div className="flex-1 overflow-hidden">
+              <DocsView />
             </div>
-          </header>
+          ) : (
+            <>
+              {/* Workspace Header */}
+              <header className="h-14 border-b border-gray-100 flex items-center justify-between px-6 bg-white shrink-0">
+                <div className="flex items-center gap-4">
+                  <h1 className="text-lg font-black tracking-tighter uppercase italic mr-4">Quaere Engine</h1>
+                  <div className="h-4 w-[1px] bg-gray-200"></div>
+                  <h2 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-tight">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    {activeTable || 'No Table Selected'}
+                  </h2>
+                  <div className="h-4 w-[1px] bg-gray-200"></div>
 
-          {/* Workspace Content */}
-          <div className="flex-grow overflow-hidden flex flex-col p-6 bg-[#fcfdfe]">
-            {workspaceView === 'classic' ? (
-              <div className="flex-1 bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] border border-slate-200/60 overflow-hidden">
-                <DatabaseView
-                  ref={databaseViewRef}
-                  activeTableName={activeTable}
-                  activeRowId={activeRowId}
-                  onSetActiveRow={setActiveRowId}
-                  onInsertTag={() => { }}
-                  onRenameTag={() => { }}
-                  onOpenExtractModal={() => { }} // Feature removed in core
-                  isExtracting={false}
-                  onSuggestSchema={() => { }} // Feature removed in core
-                  isSuggestingSchema={false}
-                  canExtract={false}
-                  onAICellAction={() => { }}
-                  onTableCreated={(name) => setActiveTable(name)}
-                />
+                  {/* DB Leader Badge */}
+                  <div
+                    className={`flex items-center gap-2 px-2.5 py-1 rounded-full border text-[10px] font-bold tracking-tight transition-all duration-500 ${isDbLeader
+                      ? 'bg-green-50 border-green-200 text-green-700'
+                      : 'bg-amber-50 border-amber-200 text-amber-700'
+                      }`}
+                    title={isDbLeader ? "This tab is directly connected to the database" : "This tab is proxying queries through a leader tab"}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full ${isDbLeader ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.4)]' : 'bg-amber-500'} transition-colors duration-500`}></div>
+                    {isDbLeader ? 'LEADER' : 'FOLLOWER'}
+                  </div>
+
+                  <div className="h-4 w-[1px] bg-gray-200"></div>
+                  <div className="flex bg-gray-100 p-0.5 rounded-lg">
+                    {isBrainTable ? (
+                      // Brain-specific toggle: Brain Panel vs Raw Table
+                      <>
+                        <button
+                          onClick={() => setBrainViewMode('brain')}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold transition-all ${brainViewMode === 'brain' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                          <span>🧠</span>
+                          Brain
+                        </button>
+                        <button
+                          onClick={() => setBrainViewMode('table')}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold transition-all ${brainViewMode === 'table' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                          <IconColumns className="w-3.5 h-3.5" />
+                          Table
+                        </button>
+                      </>
+                    ) : (
+                      // Standard toggle: Classic vs Schema Visual
+                      <>
+                        <button
+                          onClick={() => setWorkspaceView('classic')}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold transition-all ${workspaceView === 'classic' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                          <IconColumns className="w-3.5 h-3.5" />
+                          Classic
+                        </button>
+                        <button
+                          onClick={() => setWorkspaceView('visual')}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-bold transition-all ${workspaceView === 'visual' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                          <IconLayout className="w-3.5 h-3.5" />
+                          Visual
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </header>
+
+              {/* Workspace Content */}
+              <div className="flex-grow overflow-hidden flex flex-col p-6 bg-[#fcfdfe]">
+                {isBrainTable && brainViewMode === 'brain' ? (
+                  <div className="flex-1 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
+                    <BrainView activeTable={activeTable!} />
+                  </div>
+                ) : workspaceView === 'classic' || isBrainTable ? (
+                  <div className="flex-1 bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.1)] border border-slate-200/60 overflow-hidden">
+                    <DatabaseView
+                      ref={databaseViewRef}
+                      activeTableName={activeTable}
+                      activeRowId={activeRowId}
+                      onSetActiveRow={setActiveRowId}
+                      onInsertTag={() => { }}
+                      onRenameTag={() => { }}
+                      onOpenExtractModal={() => { }}
+                      isExtracting={false}
+                      onSuggestSchema={() => { }}
+                      isSuggestingSchema={false}
+                      canExtract={false}
+                      onAICellAction={() => { }}
+                      onTableCreated={(name) => setActiveTable(name)}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex-1">
+                    <DatabaseSchemaView
+                      activeTable={activeTable}
+                      setActiveTable={setActiveTable}
+                      tables={tables}
+                    />
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex-1">
-                <DatabaseSchemaView
-                  activeTable={activeTable}
-                  setActiveTable={setActiveTable}
-                  tables={tables}
-                />
-              </div>
-            )}
-          </div>
+            </>
+          )}
         </main>
       </div>
     </div>

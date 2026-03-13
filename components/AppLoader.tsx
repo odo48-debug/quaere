@@ -90,6 +90,11 @@ function getOrCreatePGlite() {
                 embedding vector(768),
                 updated_at TIMESTAMPTZ DEFAULT now()
             );
+
+            -- Register in system table to show in UI
+            INSERT INTO quaere_tables (name, display_name) VALUES ('brain_episodic', '🧠 Episodic Memory') ON CONFLICT DO NOTHING;
+            INSERT INTO quaere_tables (name, display_name) VALUES ('brain_semantic', '🔗 Semantic Knowledge') ON CONFLICT DO NOTHING;
+            INSERT INTO quaere_tables (name, display_name) VALUES ('brain_procedural', '⚙️ Procedural Skills') ON CONFLICT DO NOTHING;
         `);
 
         // Migration: ensure every registered table has _id SERIAL (required by live queries)
@@ -215,13 +220,17 @@ function AppLoaderInner() {
 
 // ---- Root with optional Clerk wrapper ------------------------------------
 export function AppLoader() {
-    // If no Clerk key is provided (e.g. open-source local dev), skip auth entirely
-    if (!CLERK_KEY) {
+    const clerkKey = (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
+
+    // If no Clerk key is provided or it's a placeholder, skip auth entirely
+    if (!clerkKey || clerkKey.includes('your_') || clerkKey.includes('pk_test_...')) {
+        console.log('[AppLoader] Running in Open-Source mode (No Auth)');
         return <AppLoaderInner />;
     }
 
+    console.log('[AppLoader] Running in SaaS mode (Clerk Auth active)');
     return (
-        <ClerkProvider publishableKey={CLERK_KEY}>
+        <ClerkProvider publishableKey={clerkKey}>
             <SignedOut>
                 <LandingPage />
             </SignedOut>

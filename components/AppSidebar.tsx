@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { useLiveQuery } from '../lib/pgliteHooks';
+import { UserButton } from '@clerk/clerk-react';
 
 interface AppSidebarProps {
     activeTab: 'database' | 'api' | 'settings' | 'docs';
@@ -160,7 +160,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                                 <div key={tableName} className="flex flex-col">
                                     <button
                                         onClick={() => toggleTable(tableName)}
-                                        className={`px-2 py-1.5 flex items-center gap-1 hover:bg-slate-200/50 transition-colors w-full text-left select-none ${activeTableId === tableName ? 'bg-white text-black shadow-sm' : 'text-slate-500'}`}
+                                        className={`group px-2 py-1.5 flex items-center gap-1 hover:bg-slate-200/50 transition-colors w-full text-left select-none ${activeTableId === tableName ? 'bg-white text-black shadow-sm' : 'text-slate-500'}`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 flex-shrink-0 transition-transform ${expandedTables[tableName] ? 'rotate-90 text-black' : 'text-slate-300'}`} viewBox="0 0 20 20" fill="currentColor">
                                             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
@@ -219,10 +219,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 </div>
             </div>
 
-            <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col items-center gap-4">
-                <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-40 hover:opacity-100 cursor-default">
-                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Local Instance</span>
+            <div className="mt-auto pt-4 border-t border-slate-100 flex flex-col gap-4">
+                <div className="flex items-center justify-between px-2">
+                    <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-40 hover:opacity-100 cursor-default">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Local Instance</span>
+                    </div>
+                    <UserButton afterSignOutUrl="/" />
                 </div>
             </div>
         </div>
