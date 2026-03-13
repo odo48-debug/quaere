@@ -16,10 +16,11 @@ interface AppSidebarProps {
     onDeleteDatabase: (id: string) => void;
     onRenameDatabase: (id: string, newName: string) => void;
     onBackToHome?: () => void;
+    isAuthEnabled?: boolean;
 }
 
 const clerkKey = (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
-const isAuthEnabled = clerkKey && !clerkKey.includes('your_') && !clerkKey.includes('pk_test_...');
+const DEFAULT_AUTH_ENABLED = clerkKey && !clerkKey.includes('your_') && !clerkKey.includes('pk_test_...');
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
     activeTableId,
@@ -31,6 +32,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     onCreateDatabase,
     onDeleteDatabase,
     onRenameDatabase,
+    isAuthEnabled = DEFAULT_AUTH_ENABLED,
 }) => {
     // Fetch schema for all tables
     const schemasQuery = useLiveQuery<{ table_name: string; column_name: string; data_type: string }>(

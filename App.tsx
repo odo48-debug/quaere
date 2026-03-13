@@ -143,6 +143,7 @@ const App: React.FC<AppProps> = ({ isPro, getClerkToken }) => {
           onCreateDatabase={handleCreateDatabase}
           onDeleteDatabase={handleDeleteDatabase}
           onRenameDatabase={handleRenameDatabase}
+          isAuthEnabled={!!getClerkToken}
         />
 
         {/* COLUMN 2: Workspace (Center) */}
