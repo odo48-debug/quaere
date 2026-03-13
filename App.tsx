@@ -9,19 +9,15 @@ import { IconLayout, IconColumns, IconX, IconSparkles } from './components/icons
 import { usePGlite, useLiveQuery } from './lib/pgliteHooks';
 import { createTable } from './lib/pglite';
 import { createAgentBridge } from './lib/agentBridge';
-import { useIsPro } from './lib/useIsPro';
-import { useAuth } from '@clerk/clerk-react';
 
 interface AppProps {
   isPro: boolean;
   getClerkToken?: () => Promise<string | null>;
 }
 
-const App: React.FC<AppProps> = ({ isPro: isProProp, getClerkToken: getClerkTokenProp }) => {
-  const { getToken } = useAuth();
-  const isPro = useIsPro();
-
+const App: React.FC<AppProps> = ({ isPro, getClerkToken }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'database' | 'api' | 'settings' | 'docs'>('database');
   const [workspaceView, setWorkspaceView] = useState<'classic' | 'visual'>('classic');
   const databaseViewRef = useRef<DatabaseViewRef>(null);
@@ -49,7 +45,7 @@ const App: React.FC<AppProps> = ({ isPro: isProProp, getClerkToken: getClerkToke
     });
 
     // Initialize Agent Bridge with subscription status
-    const closeBridge = createAgentBridge(db, { isPro, getClerkToken: getToken });
+    const closeBridge = createAgentBridge(db, { isPro, getClerkToken });
 
     return () => {
       if (typeof unsubs === 'function') unsubs();
@@ -148,7 +144,7 @@ const App: React.FC<AppProps> = ({ isPro: isProProp, getClerkToken: getClerkToke
           onCreateDatabase={handleCreateDatabase}
           onDeleteDatabase={handleDeleteDatabase}
           onRenameDatabase={handleRenameDatabase}
-          isAuthEnabled={!!getClerkTokenProp}
+          isAuthEnabled={!!getClerkToken}
         />
 
         {/* COLUMN 2: Workspace (Center) */}

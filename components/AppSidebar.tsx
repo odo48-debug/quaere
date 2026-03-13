@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from '../lib/pgliteHooks';
-import { UserButton, SignedIn } from '@clerk/clerk-react';
+import { UserButton } from '@clerk/clerk-react';
 
 interface AppSidebarProps {
     activeTab: 'database' | 'api' | 'settings' | 'docs';
@@ -229,9 +229,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Local Instance</span>
                     </div>
-                    <SignedIn>
-                        <UserButton afterSignOutUrl="/" />
-                    </SignedIn>
+                    {isAuthEnabled && <UserButton afterSignOutUrl="/" />}
                 </div>
             </div>
         </div>
