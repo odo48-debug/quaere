@@ -18,6 +18,9 @@ interface AppSidebarProps {
     onBackToHome?: () => void;
 }
 
+const clerkKey = (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim();
+const isAuthEnabled = clerkKey && !clerkKey.includes('your_') && !clerkKey.includes('pk_test_...');
+
 export const AppSidebar: React.FC<AppSidebarProps> = ({
     activeTableId,
     onSelectTable,
@@ -225,7 +228,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Local Instance</span>
                     </div>
-                    <UserButton afterSignOutUrl="/" />
+                    {isAuthEnabled && <UserButton afterSignOutUrl="/" />}
                 </div>
             </div>
         </div>
