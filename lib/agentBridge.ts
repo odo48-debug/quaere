@@ -51,8 +51,7 @@ export interface BridgeResponse {
 export const createAgentBridge = (db: PGlite, options: { isPro: boolean, getClerkToken?: () => Promise<string | null> } = { isPro: false }) => {
     const channel = new BroadcastChannel('quaere_agent_bridge');
 
-    channel.onmessage = async (event: MessageEvent<BridgeMessage>) => {
-        const msg = event.data;
+    const handleMessage = async (msg: BridgeMessage) => {
         const { type, id } = msg;
 
         // Auto-generate embedding if missing and user is PRO
@@ -200,5 +199,50 @@ export const createAgentBridge = (db: PGlite, options: { isPro: boolean, getCler
         }
     };
 
-    return () => channel.close();
+    channel.onmessage = (event) => handleMessage(event.data);
+
+    // ---- External Agent Portal (WebSocket Reconnect Logic) ----
+    let socket: WebSocket | null = null;
+    let isClosing = false;
+
+    const connectExternalPortal = () => {
+        if (isClosing) return;
+
+        // Connect to local relay on port 8080 (standard for local agents)
+        const ws = new WebSocket('ws://localhost:8080');
+        socket = ws;
+
+        ws.onopen = () => {
+            console.log('[Bridge] 🌐 External Agent Portal: Connected');
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            } catch (err) {
+                console.error('[Bridge] Received invalid JSON from external agent');
+            }
+        };
+
+        ws.onclose = () => {
+            if (!isClosing) {
+                // Try to reconnect in 5 seconds if relay goes down
+                setTimeout(connectExternalPortal, 5000);
+            }
+        };
+
+        ws.onerror = () => {
+            // Silently ignore connection errors (usual case: no relay running)
+            ws.close();
+        };
+    };
+
+    connectExternalPortal();
+
+    return () => {
+        isClosing = true;
+        channel.close();
+        if (socket) socket.close();
+    };
 };
