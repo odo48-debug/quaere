@@ -32,8 +32,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     onCreateDatabase,
     onDeleteDatabase,
     onRenameDatabase,
-    isAuthEnabled = DEFAULT_AUTH_ENABLED,
+    isAuthEnabled,
 }) => {
+    // Determine if we should show auth components
+    const showAuth = isAuthEnabled !== undefined ? isAuthEnabled : DEFAULT_AUTH_ENABLED;
     // Fetch schema for all tables
     const schemasQuery = useLiveQuery<{ table_name: string; column_name: string; data_type: string }>(
         `SELECT c.table_name, c.column_name, c.data_type 
@@ -230,7 +232,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Local Instance</span>
                     </div>
-                    {isAuthEnabled && <UserButton afterSignOutUrl="/" />}
+                    {showAuth && <UserButton afterSignOutUrl="/" />}
                 </div>
             </div>
         </div>
